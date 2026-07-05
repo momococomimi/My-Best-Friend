@@ -1,4 +1,4 @@
-# My Best Friend v2.2.0 — Appearance
+# My Best Friend v2.2.1 — Appearance
 
 **いつか 大きくなる、キミへの贈りもの**
 
@@ -8,7 +8,7 @@
 ## Theme
 **姿は変わる。親友は変わらない。**
 
-## New in v2.2.0
+## New in v2.2.1
 - Appearance Book
 - 初めての姿「光のしずく」
 - 呼吸する光、ひろがる波紋、芽のモチーフ
@@ -22,3 +22,11 @@
 
 ## Update
 ZIPを解凍し、中のファイルをGitHubリポジトリ直下へ上書きアップロードしてください。
+
+
+## v2.2.1 Compact Harmony
+
+- HomeとAppearanceで同じ「光のしずく」の姿を表示
+- Homeボタンを小型化し、2列グリッドへ変更
+- iPhoneでスクロールなしを目指して全体の余白・文字サイズを再調整
+- Memory / Profile / Appearance 画面をコンパクト表示へ調整

@@ -9,7 +9,7 @@ window.MBFStorage = (() => {
 
   function defaultData() {
     return {
-      version: '2.2.0',
+      version: '2.2.1',
       createdAt: new Date().toISOString(),
       userName: '',
       friendName: '',
@@ -163,7 +163,10 @@ window.MBFUi = (() => {
   const screen = () => document.getElementById('screen');
 
   function set(html) {
-    screen().innerHTML = html;
+    const target = screen();
+    target.innerHTML = html;
+    const match = html.match(/<section class="([^"]+)/);
+    document.body.dataset.screen = match ? match[1].split(' ')[0] : '';
     window.scrollTo({ top: 0, behavior: 'instant' });
   }
 
@@ -314,7 +317,7 @@ window.MBFHome = (() => {
   function render(data) {
     MBFUi.set(`
       <section class="home-scene">
-        ${MBFUi.friendFace('home')}
+        ${MBFAppearance.renderFriendShape(MBFAppearance.current(data), 'home-appearance')}
         <div class="home-message card">${escapeHtml(data.userName)}！<br>今日は何して遊ぶ？</div>
         <div class="home-menu">
           <button class="nav-button voice" id="voiceBtn"><span>🎙 Voice<span class="nav-sub">声ではなす</span></span><span class="nav-arrow">›</span></button>
@@ -332,7 +335,7 @@ window.MBFHome = (() => {
     document.getElementById('messageBtn').addEventListener('click', () => alert('Messageは次の章で作ります。'));
   }
   function escapeHtml(str) { return String(str || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
-  return { render };
+  return { render, current, renderFriendShape };
 })();
 window.MBFProfile = (() => {
   function esc(str) { return String(str || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
@@ -575,13 +578,18 @@ window.MBFAppearance = (() => {
   function iconFor(type) {
     return ({ LIGHT:'☀️', LIQUID:'🌊', WIND:'🍃', TREE:'🌱', ROBOT:'🤖', CUSTOM:'✨' })[type] || '✨';
   }
-  function renderFriendShape(appearance) {
+  function renderFriendShape(appearance, extraClass = '') {
     return `
-      <div class="appearance-stage" style="--appearance-color:${esc(appearance.color || '#78d3ff')}">
-        <div class="light-drop" aria-hidden="true">
+      <div class="appearance-stage ${esc(extraClass)}" style="--appearance-color:${esc(appearance.color || '#78d3ff')}">
+        <div class="light-drop" aria-label="${esc(appearance.name || 'フレンド')}">
           <span class="drop-core"></span>
           <span class="drop-wave wave-one"></span>
           <span class="drop-wave wave-two"></span>
+          <span class="drop-eye eye-left"></span>
+          <span class="drop-eye eye-right"></span>
+          <span class="drop-cheek cheek-left"></span>
+          <span class="drop-cheek cheek-right"></span>
+          <span class="drop-mouth"></span>
           <span class="drop-sprout">🌱</span>
         </div>
       </div>`;
@@ -620,7 +628,7 @@ window.MBFAppearance = (() => {
     document.getElementById('appearanceHome').addEventListener('click', () => MBFHome.render(data));
     document.getElementById('appearanceMemory').addEventListener('click', () => MBFMemory.render(data, 'appearance-first'));
   }
-  return { render };
+  return { render, current, renderFriendShape };
 })();
 
 window.MBFMemory = (() => {
@@ -650,7 +658,7 @@ window.MBFMemory = (() => {
     document.getElementById('backHome').addEventListener('click', () => MBFHome.render(data));
   }
   function escapeHtml(str) { return String(str || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
-  return { render };
+  return { render, current, renderFriendShape };
 })();
 (() => {
   if ('serviceWorker' in navigator) {

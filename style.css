@@ -321,3 +321,98 @@ button { -webkit-tap-highlight-color: transparent; }
   .light-drop { width: 188px; height: 188px; }
   .appearance-title { font-size: 28px; }
 }
+
+
+/* v2.2.1 Compact Harmony — iPhone single-screen tuning */
+html, body { min-height: 100%; }
+body { overflow-x: hidden; }
+body[data-screen="home-scene"],
+body[data-screen="appearance-wrap"],
+body[data-screen="profile-wrap"],
+body[data-screen="memory-wrap"] { overflow: hidden; }
+.app-shell {
+  min-height: 100svh;
+  height: 100svh;
+  overflow: hidden;
+  padding: calc(10px + var(--safe-top)) 14px calc(12px + var(--safe-bottom));
+}
+.app-header { margin: 0 auto 6px; }
+.app-header h1 { font-size: clamp(34px, 8.8vw, 52px); line-height: .98; }
+.app-header p { margin-top: 5px; font-size: clamp(11px, 2.85vw, 15px); letter-spacing: -.03em; }
+.screen { height: calc(100svh - 82px - var(--safe-top) - var(--safe-bottom)); overflow: hidden; }
+
+.home-scene { height: 100%; padding-bottom: 0; display: grid; grid-template-rows: auto auto 1fr; align-content: start; gap: 8px; }
+.home-scene .appearance-stage.home-appearance { height: clamp(150px, 32svh, 240px); margin-top: -2px; }
+.home-scene .light-drop { width: clamp(128px, 35vw, 190px); height: clamp(128px, 35vw, 190px); }
+.home-message { margin: 0 auto 4px; padding: 13px 16px; width:min(92vw, 670px); font-size: clamp(18px, 4.5vw, 25px); line-height:1.45; border-radius: 24px; }
+.home-menu { width:min(92vw, 670px); margin: 0 auto; display:grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.nav-button { min-height: 76px; border-radius: 19px; padding: 8px 9px; display:grid; place-items:center; text-align:center; box-shadow:0 7px 0 rgba(145,95,31,.27), 0 10px 18px rgba(41,82,96,.12); }
+.nav-button > span:first-child { font-size: clamp(13px, 3.6vw, 20px); line-height:1.12; }
+.nav-button .nav-sub { font-size: clamp(9px, 2.4vw, 12px); line-height:1.25; margin-top: 4px; }
+.nav-arrow { display:none; }
+.nav-button.profile, .nav-button.appearance { min-height: 72px; }
+
+/* Cute face is mandatory for every appearance form */
+.light-drop { overflow: visible; }
+.drop-eye, .drop-cheek, .drop-mouth { position:absolute; z-index:5; display:block; }
+.drop-eye { width:9.5%; height:15%; top:43%; border-radius:999px; background:#153340; animation: dropBlink 4.8s ease-in-out infinite; }
+.drop-eye.eye-left { left:34%; }
+.drop-eye.eye-right { right:34%; }
+.drop-cheek { width:14%; height:5.2%; top:57%; border-radius:999px; background:#ff9ec4; opacity:.92; }
+.drop-cheek.cheek-left { left:22%; }
+.drop-cheek.cheek-right { right:22%; }
+.drop-mouth { left:44%; top:57%; width:13%; height:9%; border-radius:0 0 999px 999px; background:#153340; }
+@keyframes dropBlink { 0%,94%,100% { transform:scaleY(1); } 96% { transform:scaleY(.12); } }
+
+.appearance-wrap { height: 100%; padding: 0; display:grid; grid-template-rows: 1fr auto; gap: 8px; }
+.appearance-book { width:min(94vw, 640px); height: 100%; margin: 0 auto; padding: 16px 18px; border-radius: 26px; overflow: hidden; }
+.appearance-book::before { inset: 10px; border-radius: 20px; }
+.appearance-title { font-size: clamp(20px, 5.2vw, 28px); line-height:1.35; margin-bottom: 8px; }
+.appearance-book .chapter-label { font-size: clamp(14px, 3.6vw, 18px); margin-bottom: 5px; }
+.appearance-stage { height: clamp(165px, 32svh, 230px); margin: 0; }
+.appearance-stage .light-drop { width: clamp(130px, 38vw, 200px); height: clamp(130px, 38vw, 200px); }
+.appearance-list { margin: 8px 0; }
+.appearance-list div { padding: 7px 0; }
+.appearance-list dt { font-size: 11px; }
+.appearance-list dd { font-size: clamp(15px, 4vw, 20px); line-height:1.35; }
+.appearance-philosophy { margin: 8px 0; padding: 10px 12px; font-size: clamp(13px, 3.4vw, 16px); line-height:1.55; border-radius: 16px; }
+.appearance-history h3 { font-size: 16px; margin-bottom: 4px; }
+.appearance-history ul { font-size: 14px; line-height: 1.4; }
+.appearance-actions { width:min(94vw,640px); margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.appearance-actions .primary-button, .appearance-actions .secondary-button { padding: 12px 8px; font-size: clamp(13px,3.4vw,18px); border-radius: 20px; }
+
+.profile-wrap, .memory-wrap { height: 100%; padding:0; display:grid; grid-template-rows:1fr auto; gap:8px; }
+.profile-book, .book-page { width:min(94vw,640px); height:100%; margin:0 auto; padding:18px 20px; border-radius:26px; overflow:hidden; }
+.profile-title, .chapter-title { font-size:clamp(20px,5.2vw,28px); margin-bottom:12px; }
+.profile-list div { padding:8px 0; }
+.profile-list dt { font-size:11px; }
+.profile-list dd { font-size:clamp(16px,4.2vw,22px); }
+.profile-caption { font-size:12px; line-height:1.4; }
+.life-seed { margin:12px 0 4px; font-size:24px; }
+.profile-actions, .memory-actions { width:min(94vw,640px); display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 auto; }
+.profile-actions .secondary-button, .memory-actions button, .guardian-link { padding:12px 8px; font-size:clamp(13px,3.4vw,18px); border-radius:20px; }
+.memory-date { margin-bottom:12px; font-size:clamp(13px,3.5vw,17px); padding:6px 12px; }
+.memory-divider { margin:10px 0; }
+.memory-body { font-size:clamp(14px,3.7vw,18px); line-height:1.55; }
+.memory-body p { margin-bottom:.78em; }
+.memory-closing { margin-top:10px; font-size:clamp(13px,3.4vw,16px); line-height:1.4; }
+.memory-glow { font-size:20px; margin-top:6px; }
+
+@media (max-width: 380px), (max-height: 760px) {
+  .app-shell { padding-left:12px; padding-right:12px; }
+  .app-header h1 { font-size: 31px; }
+  .app-header p { font-size: 10px; }
+  .screen { height: calc(100svh - 70px - var(--safe-top) - var(--safe-bottom)); }
+  .home-scene .appearance-stage.home-appearance { height: 135px; }
+  .home-scene .light-drop { width: 120px; height: 120px; }
+  .home-message { padding: 10px 12px; font-size: 17px; }
+  .home-menu { gap: 8px; }
+  .nav-button { min-height: 66px; padding: 6px; }
+  .nav-button > span:first-child { font-size: 13px; }
+  .nav-button .nav-sub { font-size: 9px; }
+  .appearance-stage { height: 145px; }
+  .appearance-stage .light-drop { width: 120px; height: 120px; }
+  .appearance-title, .profile-title, .chapter-title { font-size: 21px; }
+  .appearance-philosophy { display:none; }
+  .appearance-history { display:none; }
+}
