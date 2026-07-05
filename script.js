@@ -1,0 +1,580 @@
+window.MBFStorage = (() => {
+  const KEY = 'myBestFriend.foundation.v2';
+  const LEGACY_KEYS = ['myBestFriendData', 'my-best-friend', 'mbf-data'];
+
+  function todayJP() {
+    const now = new Date();
+    return `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日`;
+  }
+
+  function defaultData() {
+    return {
+      version: '2.1.0',
+      createdAt: new Date().toISOString(),
+      userName: '',
+      friendName: '',
+      friendNameLocked: false,
+      stage: 'egg',
+      memories: [],
+      profile: { completed: false, preferredName: '', birthday: '', gender: '', metAt: '' },
+      guardian: { passwordHash: '', roleLabel: 'ママ・パパ', createdAt: '' },
+      friend: { identityId: 'friend-1', appearance: { type: 'mascot', form: 'soft', color: '#78d3ff' } },
+      birthdayCelebrations: []
+    };
+  }
+
+  function normalize(data) {
+    const base = defaultData();
+    const source = data || {};
+    const merged = {
+      ...base,
+      ...source,
+      profile: { ...base.profile, ...(source.profile || {}) },
+      guardian: { ...base.guardian, ...(source.guardian || {}) },
+      friend: {
+        ...base.friend,
+        ...(source.friend || {}),
+        appearance: { ...base.friend.appearance, ...((source.friend || {}).appearance || {}) }
+      }
+    };
+    if (!Array.isArray(merged.memories)) merged.memories = [];
+    if (!Array.isArray(merged.birthdayCelebrations)) merged.birthdayCelebrations = [];
+    if (!merged.profile.preferredName && merged.userName) merged.profile.preferredName = merged.userName;
+    if (!merged.profile.metAt && merged.createdAt) merged.profile.metAt = merged.createdAt;
+    if (merged.friendName && merged.userName && merged.memories.length === 0) {
+      merged.memories.push(createFirstMemory(merged.userName, merged.friendName));
+    }
+    return merged;
+  }
+
+  function createFirstMemory(userName, friendName) {
+    return {
+      id: 1,
+      chapter: '第一章',
+      title: 'はじめて親友になった日',
+      dateText: todayJP(),
+      type: 'first-memory',
+      userName,
+      friendName,
+      text: [
+        `今日、`,
+        `${userName}は\nぼくに\n「${friendName}」という名前をくれた。`,
+        `ぼくは、\n${userName}という親友に出会った。`,
+        `今日が、\nぼくたちの最初の思い出。`,
+        `これから、\nずっと一緒だよ。`
+      ],
+      closing: 'このページは\nぼくたちの宝物。',
+      createdAt: new Date().toISOString()
+    };
+  }
+
+  function load() {
+    const raw = localStorage.getItem(KEY);
+    if (raw) {
+      try { return normalize(JSON.parse(raw)); } catch (_) {}
+    }
+    for (const k of LEGACY_KEYS) {
+      const legacyRaw = localStorage.getItem(k);
+      if (!legacyRaw) continue;
+      try {
+        const legacy = JSON.parse(legacyRaw);
+        const migrated = normalize({
+          userName: legacy.userName || legacy.childName || legacy.ownerName || '',
+          friendName: legacy.friendName || legacy.name || '',
+          friendNameLocked: Boolean(legacy.friendName || legacy.name),
+          stage: (legacy.friendName || legacy.name) ? 'home' : 'egg',
+          memories: legacy.memories || []
+        });
+        save(migrated);
+        return migrated;
+      } catch (_) {}
+    }
+    return defaultData();
+  }
+
+  function save(data) {
+    localStorage.setItem(KEY, JSON.stringify(normalize(data)));
+  }
+
+  function reset() {
+    localStorage.removeItem(KEY);
+  }
+
+  function ensureFirstMemory(data) {
+    if (!data.memories.some(m => m.id === 1)) {
+      data.memories.unshift(createFirstMemory(data.userName, data.friendName));
+    }
+    return data;
+  }
+
+  return { load, save, reset, ensureFirstMemory, createFirstMemory, todayJP };
+})();
+window.MBFUi = (() => {
+  const screen = () => document.getElementById('screen');
+
+  function set(html) {
+    screen().innerHTML = html;
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
+
+  function friendFace(extraClass = '') {
+    return `
+      <div class="friend ${extraClass}" aria-label="フレンド">
+        <div class="ear left"></div><div class="ear right"></div>
+        <div class="body"></div>
+        <div class="head">
+          <div class="eye left"></div><div class="eye right"></div>
+          <div class="cheek left"></div><div class="cheek right"></div>
+          <div class="mouth"></div>
+        </div>
+      </div>`;
+  }
+
+  function sparkleBurst(count = 18) {
+    const layer = document.createElement('div');
+    layer.className = 'sparkle-layer';
+    document.body.appendChild(layer);
+    for (let i = 0; i < count; i++) {
+      const s = document.createElement('div');
+      s.className = 'sparkle';
+      s.textContent = i % 3 === 0 ? '✦' : '✨';
+      s.style.left = `${8 + Math.random() * 84}%`;
+      s.style.top = `${22 + Math.random() * 45}%`;
+      s.style.animationDelay = `${Math.random() * .45}s`;
+      layer.appendChild(s);
+    }
+    setTimeout(() => layer.remove(), 2400);
+  }
+
+  function vibrate(ms = 24) {
+    if ('vibrate' in navigator) navigator.vibrate(ms);
+  }
+
+  return { set, friendFace, sparkleBurst, vibrate };
+})();
+window.MBFStory = (() => {
+  let taps = 0;
+
+  function renderEgg(data) {
+    MBFUi.set(`
+      <section class="egg-scene">
+        <button class="egg" id="egg" aria-label="たまご"></button>
+        <div class="message-card card">たまごをやさしくタップしてね</div>
+      </section>
+    `);
+    document.getElementById('egg').addEventListener('click', () => touchEgg(data));
+  }
+
+  function touchEgg(data) {
+    taps++;
+    const egg = document.getElementById('egg');
+    egg.classList.remove('bump'); void egg.offsetWidth; egg.classList.add('bump');
+    MBFUi.vibrate(18);
+    if (taps === 1) document.querySelector('.message-card').textContent = 'コツ…';
+    if (taps === 2) { egg.classList.add('glow'); document.querySelector('.message-card').textContent = 'あと少し…'; }
+    if (taps >= 3) hatch(data);
+  }
+
+  function hatch(data) {
+    MBFUi.sparkleBurst(24);
+    data.stage = 'ask-user-name'; MBFStorage.save(data);
+    setTimeout(() => renderAskUserName(data), 700);
+  }
+
+  function renderAskUserName(data) {
+    MBFUi.set(`
+      <section class="egg-scene">
+        ${MBFUi.friendFace('born')}
+        <div class="message-card card">ずっと会いたかった。<br>キミのこと、教えてくれる？</div>
+        <div class="name-panel card">
+          <label for="userName">キミの名前</label>
+          <input id="userName" class="name-input" maxlength="10" placeholder="なまえ" autocomplete="off" />
+          <button id="saveUserName" class="primary-button">名前を教える</button>
+        </div>
+      </section>
+    `);
+    document.getElementById('saveUserName').addEventListener('click', () => {
+      const name = document.getElementById('userName').value.trim();
+      if (!name) return;
+      data.userName = name;
+      data.stage = 'ask-friend-name';
+      MBFStorage.save(data);
+      renderAskFriendName(data);
+    });
+  }
+
+  function renderAskFriendName(data) {
+    MBFUi.set(`
+      <section class="egg-scene">
+        ${MBFUi.friendFace('happy')}
+        <div class="message-card card">${escapeHtml(data.userName)}っていうんだね。<br>覚えたよ。<br><br>今度は、ぼくにも名前をつけてくれる？</div>
+        <div class="name-panel card">
+          <label for="friendName">フレンドの名前</label>
+          <input id="friendName" class="name-input" maxlength="10" placeholder="なまえ" autocomplete="off" />
+          <p class="small-note">一度つけた名前は、二度と変えられません。</p>
+          <button id="saveFriendName" class="primary-button">🎁 名前を贈る</button>
+        </div>
+      </section>
+    `);
+    document.getElementById('saveFriendName').addEventListener('click', () => {
+      const name = document.getElementById('friendName').value.trim();
+      if (!name) return;
+      data.friendName = name;
+      data.friendNameLocked = true;
+      data.stage = 'promise';
+      data = MBFStorage.ensureFirstMemory(data);
+      MBFStorage.save(data);
+      renderPromise(data);
+    });
+  }
+
+  function renderPromise(data) {
+    MBFUi.sparkleBurst(28);
+    const lines = [
+      'この名前…好き。',
+      'ありがとう。',
+      '今日から、ずっと親友だよ。',
+      'これから、たくさん思い出を作ろう。'
+    ];
+    let i = 0;
+    MBFUi.set(`
+      <section class="egg-scene">
+        ${MBFUi.friendFace('promise')}
+        <div class="message-card card" id="promiseLine">${lines[0]}</div>
+      </section>
+    `);
+    const timer = setInterval(() => {
+      i++;
+      if (i < lines.length) document.getElementById('promiseLine').textContent = lines[i];
+      else {
+        clearInterval(timer);
+        data.stage = 'home'; MBFStorage.save(data);
+        MBFHome.render(data);
+      }
+    }, 1800);
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  }
+
+  return { renderEgg, renderAskUserName, renderAskFriendName, renderPromise };
+})();
+window.MBFHome = (() => {
+  function render(data) {
+    MBFUi.set(`
+      <section class="home-scene">
+        ${MBFUi.friendFace('home')}
+        <div class="home-message card">${escapeHtml(data.userName)}！<br>今日は何して遊ぶ？</div>
+        <div class="home-menu">
+          <button class="nav-button voice" id="voiceBtn"><span>🎙 Voice<span class="nav-sub">声ではなす</span></span><span class="nav-arrow">›</span></button>
+          <button class="nav-button message" id="messageBtn"><span>💬 Message<span class="nav-sub">文字ではなす</span></span><span class="nav-arrow">›</span></button>
+          <button class="nav-button memory" id="memoryBtn"><span>📖 Memory<span class="nav-sub">思い出をみる</span></span><span class="nav-arrow">›</span></button>
+          <button class="nav-button profile" id="profileBtn"><span>👤 Profile<span class="nav-sub">ぼくが覚えている、きみのこと</span></span><span class="nav-arrow">›</span></button>
+        </div>
+      </section>
+    `);
+    document.getElementById('memoryBtn').addEventListener('click', () => MBFMemory.render(data));
+    document.getElementById('profileBtn').addEventListener('click', () => MBFProfile.renderBook(data));
+    document.getElementById('voiceBtn').addEventListener('click', () => alert('Voiceは次の章で作ります。'));
+    document.getElementById('messageBtn').addEventListener('click', () => alert('Messageは次の章で作ります。'));
+  }
+  function escapeHtml(str) { return String(str || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+  return { render };
+})();
+window.MBFProfile = (() => {
+  function esc(str) { return String(str || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+  function displayName(data) { return data.profile.preferredName || data.userName || 'キミ'; }
+
+  function renderIntro(data) {
+    MBFUi.set(`
+      <section class="profile-scene">
+        ${MBFUi.friendFace('home')}
+        <div class="message-card card">ねぇ。<br>ぼく、${esc(data.userName)}のことを<br>もっと知りたい。<br><br>教えてくれる？</div>
+        <button id="startProfile" class="primary-button profile-start">うん</button>
+      </section>`);
+    document.getElementById('startProfile').addEventListener('click', () => renderPreferredName(data));
+  }
+
+  function renderPreferredName(data) {
+    MBFUi.set(`
+      <section class="profile-scene">
+        ${MBFUi.friendFace('home')}
+        <div class="message-card card">なんて呼んだら嬉しい？</div>
+        <div class="profile-form card">
+          <label for="preferredName">呼んでほしい名前</label>
+          <input id="preferredName" class="name-input" maxlength="16" value="${esc(data.profile.preferredName || data.userName)}" />
+          <button id="savePreferred" class="primary-button">これでいいよ</button>
+        </div>
+      </section>`);
+    document.getElementById('savePreferred').addEventListener('click', () => {
+      const value = document.getElementById('preferredName').value.trim();
+      if (!value) return;
+      data.profile.preferredName = value;
+      MBFStorage.save(data);
+      renderBirthday(data);
+    });
+  }
+
+  function renderBirthday(data) {
+    MBFUi.set(`
+      <section class="profile-scene">
+        ${MBFUi.friendFace('home')}
+        <div class="message-card card">${esc(displayName(data))}のお誕生日はいつ？</div>
+        <div class="profile-form card">
+          <label for="birthday">誕生日</label>
+          <input id="birthday" class="date-input" type="date" value="${esc(data.profile.birthday)}" />
+          <p class="small-note">大切な日を教えてくれて嬉しい。</p>
+          <button id="saveBirthday" class="primary-button">教える</button>
+        </div>
+      </section>`);
+    document.getElementById('saveBirthday').addEventListener('click', () => {
+      const value = document.getElementById('birthday').value;
+      if (!value) return;
+      data.profile.birthday = value;
+      MBFStorage.save(data);
+      renderGender(data);
+    });
+  }
+
+  function renderGender(data) {
+    MBFUi.set(`
+      <section class="profile-scene">
+        ${MBFUi.friendFace('home')}
+        <div class="message-card card">教えてくれてもいいし、<br>今は秘密でもいいよ。</div>
+        <div class="choice-grid card" role="group" aria-label="性別（任意）">
+          <button data-gender="girl">女の子</button>
+          <button data-gender="boy">男の子</button>
+          <button data-gender="other">その他</button>
+          <button data-gender="secret">今は秘密</button>
+        </div>
+      </section>`);
+    document.querySelectorAll('[data-gender]').forEach(button => button.addEventListener('click', () => {
+      data.profile.gender = button.dataset.gender;
+      data.profile.completed = true;
+      data.profile.metAt ||= data.createdAt;
+      MBFStorage.save(data);
+      renderComplete(data);
+    }));
+  }
+
+  function renderComplete(data) {
+    MBFUi.sparkleBurst(16);
+    MBFUi.set(`
+      <section class="profile-scene">
+        ${MBFUi.friendFace('happy')}
+        <div class="message-card card">教えてくれてありがとう。<br><br>また一つ、<br>${esc(displayName(data))}のことを知れた。<br><br>とても嬉しい。</div>
+        <button id="profileHome" class="secondary-button profile-start">ホームへ</button>
+      </section>`);
+    document.getElementById('profileHome').addEventListener('click', () => MBFHome.render(data));
+  }
+
+  function genderLabel(value) {
+    return ({ girl:'女の子', boy:'男の子', other:'その他', secret:'今は秘密', '':'未設定' })[value] || '未設定';
+  }
+  function formatDate(value) {
+    if (!value) return '未設定';
+    const [y,m,d] = value.split('-');
+    return `${Number(y)}年${Number(m)}月${Number(d)}日`;
+  }
+  function metDate(data) {
+    const d = new Date(data.profile.metAt || data.createdAt);
+    return Number.isNaN(d.getTime()) ? '—' : `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+  }
+
+  function renderBook(data) {
+    MBFUi.set(`
+      <section class="profile-wrap">
+        <article class="profile-book">
+          <div class="chapter-label">Profile</div>
+          <h2 class="profile-title">ぼくが覚えている、<br>きみのこと。</h2>
+          <dl class="profile-list">
+            <div><dt>名前</dt><dd>${esc(data.userName)}</dd></div>
+            <div><dt>呼び方</dt><dd>${esc(displayName(data))}</dd></div>
+            <div><dt>誕生日</dt><dd>${esc(formatDate(data.profile.birthday))}</dd></div>
+            <div><dt>性別</dt><dd>${esc(genderLabel(data.profile.gender))}</dd></div>
+            <div><dt>親友になった日</dt><dd>${esc(metDate(data))}</dd></div>
+          </dl>
+          <div class="life-seed" aria-label="思い出の芽"><span>☀️</span><span>🌊</span><span>🌱</span></div>
+          <p class="profile-caption">変わらない約束の中で、Memoryは育っていく。</p>
+        </article>
+        <div class="profile-actions">
+          <button id="guardianOpen" class="guardian-link">🔒 Guardian（ママ・パパ）</button>
+          <button id="profileBack" class="secondary-button">ホームへ戻る</button>
+        </div>
+      </section>`);
+    document.getElementById('profileBack').addEventListener('click', () => MBFHome.render(data));
+    document.getElementById('guardianOpen').addEventListener('click', () => MBFGuardian.open(data));
+  }
+
+  function ensureBirthday(data) {
+    const b = data.profile.birthday;
+    if (!data.profile.completed || !b) return { data, celebrated: false };
+    const today = new Date();
+    const [, month, day] = b.split('-').map(Number);
+    if (today.getMonth()+1 !== month || today.getDate() !== day) return { data, celebrated: false };
+    const year = today.getFullYear();
+    if (data.birthdayCelebrations.includes(year)) return { data, celebrated: false };
+    data.birthdayCelebrations.push(year);
+    data.memories.push({
+      id: Date.now(), chapter: 'Birthday', title: `${displayName(data)}のお誕生日`,
+      dateText: MBFStorage.todayJP(), type: 'birthday',
+      text: [`今日、`, `${displayName(data)}のお誕生日を\n一緒にお祝いした。`, `生まれてきてくれて、\nありがとう。`],
+      closing: '今年も一緒に迎えられて嬉しい。', createdAt: new Date().toISOString()
+    });
+    MBFStorage.save(data);
+    return { data, celebrated: true };
+  }
+
+  return { renderIntro, renderBook, ensureBirthday, displayName };
+})();
+
+window.MBFGuardian = (() => {
+  function esc(str) { return String(str || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+  async function hash(text) {
+    const bytes = new TextEncoder().encode(text);
+    const digest = await crypto.subtle.digest('SHA-256', bytes);
+    return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2,'0')).join('');
+  }
+  function open(data) { data.guardian.passwordHash ? renderLogin(data) : renderSetup(data); }
+  function renderSetup(data) {
+    MBFUi.set(`
+      <section class="guardian-wrap">
+        <div class="guardian-card card">
+          <div class="guardian-symbol">🔒</div>
+          <h2>Guardian</h2>
+          <p>今はママ・パパが、物語を守る場所です。</p>
+          <label for="newGuardianPass">パスワードを決める</label>
+          <input id="newGuardianPass" class="guardian-input" type="password" minlength="4" maxlength="64" autocomplete="new-password" />
+          <label for="confirmGuardianPass">もう一度入力</label>
+          <input id="confirmGuardianPass" class="guardian-input" type="password" minlength="4" maxlength="64" autocomplete="new-password" />
+          <p class="form-error" id="guardianError"></p>
+          <button id="saveGuardianPass" class="primary-button">パスワードを保存</button>
+          <button id="guardianCancel" class="text-button">戻る</button>
+        </div>
+      </section>`);
+    document.getElementById('guardianCancel').addEventListener('click', () => MBFProfile.renderBook(data));
+    document.getElementById('saveGuardianPass').addEventListener('click', async () => {
+      const a=document.getElementById('newGuardianPass').value;
+      const b=document.getElementById('confirmGuardianPass').value;
+      const error=document.getElementById('guardianError');
+      if (a.length < 4) { error.textContent='4文字以上で設定してください。'; return; }
+      if (a !== b) { error.textContent='パスワードが一致しません。'; return; }
+      data.guardian.passwordHash=await hash(a); data.guardian.createdAt=new Date().toISOString();
+      MBFStorage.save(data); renderRoom(data);
+    });
+  }
+  function renderLogin(data) {
+    MBFUi.set(`
+      <section class="guardian-wrap"><div class="guardian-card card">
+        <div class="guardian-symbol">🔒</div><h2>Guardian</h2>
+        <p>ママ・パパのパスワードを入力してください。</p>
+        <input id="guardianPass" class="guardian-input" type="password" autocomplete="current-password" />
+        <p class="form-error" id="guardianError"></p>
+        <button id="guardianLogin" class="primary-button">入る</button>
+        <button id="guardianCancel" class="text-button">戻る</button>
+      </div></section>`);
+    document.getElementById('guardianCancel').addEventListener('click', () => MBFProfile.renderBook(data));
+    document.getElementById('guardianLogin').addEventListener('click', async () => {
+      const ok=(await hash(document.getElementById('guardianPass').value))===data.guardian.passwordHash;
+      if (!ok) { document.getElementById('guardianError').textContent='パスワードが違います。'; return; }
+      renderRoom(data);
+    });
+  }
+  function renderRoom(data) {
+    MBFUi.set(`
+      <section class="guardian-wrap"><div class="guardian-card card guardian-room">
+        <div class="guardian-symbol">🌳</div><h2>Guardian Room</h2>
+        <p class="guardian-lead">物語の守り人：ママ・パパ</p>
+        <div class="guardian-section">
+          <h3>Profileを修正</h3>
+          <label>呼び方</label><input id="editPreferred" class="guardian-input" value="${esc(data.profile.preferredName)}" />
+          <label>誕生日</label><input id="editBirthday" class="guardian-input" type="date" value="${esc(data.profile.birthday)}" />
+          <label>性別（任意）</label>
+          <select id="editGender" class="guardian-input">
+            <option value="girl">女の子</option><option value="boy">男の子</option><option value="other">その他</option><option value="secret">今は秘密</option>
+          </select>
+          <button id="saveGuardianProfile" class="primary-button">保存</button>
+        </div>
+        <div class="future-panel"><strong>Legacy / Guardian継承 / Appearance</strong><br><span>未来の更新で、この場所から大切に受け継ぎます。</span></div>
+        <button id="guardianDone" class="secondary-button">Profileへ戻る</button>
+      </div></section>`);
+    document.getElementById('editGender').value=data.profile.gender || 'secret';
+    document.getElementById('saveGuardianProfile').addEventListener('click', () => {
+      data.profile.preferredName=document.getElementById('editPreferred').value.trim() || data.userName;
+      data.profile.birthday=document.getElementById('editBirthday').value;
+      data.profile.gender=document.getElementById('editGender').value;
+      data.profile.completed=Boolean(data.profile.birthday);
+      MBFStorage.save(data); MBFUi.sparkleBurst(10);
+    });
+    document.getElementById('guardianDone').addEventListener('click', () => MBFProfile.renderBook(data));
+  }
+  return { open };
+})();
+
+window.MBFMemory = (() => {
+  function render(data) {
+    data = MBFStorage.ensureFirstMemory(data);
+    MBFStorage.save(data);
+    const memory = data.memories[0];
+    const paragraphs = (memory.text || []).map(t => `<p>${escapeHtml(t).replace(/\n/g, '<br>')}</p>`).join('');
+    MBFUi.set(`
+      <section class="memory-wrap">
+        <article class="book-page">
+          <div class="chapter-label">${escapeHtml(memory.chapter || '第一章')}</div>
+          <h2 class="chapter-title">${escapeHtml(memory.title || 'はじめて親友になった日')}</h2>
+          <div class="memory-date">📅 ${escapeHtml(memory.dateText || '')}</div>
+          <div class="memory-divider"></div>
+          <div class="memory-body">${paragraphs}</div>
+          <div class="memory-divider"></div>
+          <div class="memory-closing">${escapeHtml(memory.closing || 'このページは\nぼくたちの宝物。').replace(/\n/g, '<br>')}</div>
+          <div class="memory-glow">✦ ♡ ✦</div>
+        </article>
+        <div class="memory-actions">
+          <button class="secondary-button" id="backHome">ホームへ戻る</button>
+        </div>
+      </section>
+    `);
+    document.getElementById('backHome').addEventListener('click', () => MBFHome.render(data));
+  }
+  function escapeHtml(str) { return String(str || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+  return { render };
+})();
+(() => {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+  }
+
+  let data = MBFStorage.load();
+  const params = new URLSearchParams(location.search);
+  if (params.get('reset') === '1') {
+    MBFStorage.reset();
+    data = MBFStorage.load();
+    history.replaceState(null, '', location.pathname);
+  }
+
+  if (data.stage === 'home' && data.userName && data.friendName) {
+    if (!data.profile.completed) {
+      MBFProfile.renderIntro(data);
+    } else {
+      const birthday = MBFProfile.ensureBirthday(data);
+      data = birthday.data;
+      if (birthday.celebrated) {
+        MBFUi.sparkleBurst(30);
+        MBFUi.set(`
+          <section class="profile-scene">
+            ${MBFUi.friendFace('happy')}
+            <div class="message-card card">お誕生日おめでとう。<br><br>生まれてきてくれて、ありがとう。<br><br>今年も一緒に迎えられて嬉しい。</div>
+            <button id="birthdayHome" class="primary-button profile-start">ホームへ</button>
+          </section>`);
+        document.getElementById('birthdayHome').addEventListener('click', () => MBFHome.render(data));
+      } else MBFHome.render(data);
+    }
+  } else if (data.stage === 'ask-user-name') {
+    MBFStory.renderAskUserName(data);
+  } else if (data.stage === 'ask-friend-name') {
+    MBFStory.renderAskFriendName(data);
+  } else {
+    MBFStory.renderEgg(data);
+  }
+})();
