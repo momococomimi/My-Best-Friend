@@ -1443,3 +1443,139 @@ body[data-screen="profile-scene"] .app-header p {
   .care-card { gap: 7px; padding: 12px; }
   .care-actions-mini button { min-height: 42px; font-size: 13px; }
 }
+
+/* v2.4.1 Fit Fix: iPhone spacing / Profile restore / birthday overflow */
+*, *::before, *::after { box-sizing: border-box; }
+
+body[data-screen="home-scene"] .screen,
+body[data-screen="egg-scene"] .screen,
+body[data-screen="profile-scene"] .screen {
+  overflow: hidden !important;
+}
+
+/* Home: use vertical space, center friend, separate comment and buttons */
+.home-scene {
+  height: 100% !important;
+  display: grid !important;
+  grid-template-rows: minmax(265px, 1fr) auto auto !important;
+  gap: clamp(14px, 2.1svh, 22px) !important;
+  align-content: stretch !important;
+  padding-bottom: max(6px, var(--safe-bottom)) !important;
+}
+.home-scene .appearance-stage.home-appearance {
+  height: clamp(260px, 43svh, 360px) !important;
+  margin: 0 auto clamp(14px, 2.2svh, 24px) !important;
+  align-self: center !important;
+  display: grid !important;
+  place-items: center !important;
+}
+.home-scene .appearance-stage.home-appearance .light-drop {
+  width: clamp(166px, 43vw, 230px) !important;
+  height: clamp(166px, 43vw, 230px) !important;
+}
+.home-scene .drop-sprout {
+  font-size: clamp(25px, 6.4vw, 34px) !important;
+}
+.home-message {
+  width: min(92vw, 670px) !important;
+  min-height: clamp(56px, 8.1svh, 78px) !important;
+  padding: clamp(10px, 1.75svh, 16px) 16px !important;
+  margin: 0 auto !important;
+  border-radius: clamp(21px, 5vw, 30px) !important;
+  font-size: clamp(17px, 4.35vw, 23px) !important;
+  line-height: 1.45 !important;
+}
+.home-menu {
+  width: min(92vw, 670px) !important;
+  margin: 0 auto !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: clamp(8px, 1.15svh, 12px) !important;
+  align-self: end !important;
+}
+.nav-button,
+.nav-button.profile,
+.nav-button.appearance,
+.nav-button.guardian,
+.nav-button.care {
+  width: 100% !important;
+  height: clamp(58px, 8.2svh, 72px) !important;
+  min-height: clamp(58px, 8.2svh, 72px) !important;
+  max-height: 72px !important;
+  padding: 6px 4px !important;
+  border-radius: 16px !important;
+  display: grid !important;
+  place-items: center !important;
+  text-align: center !important;
+}
+.nav-button > span:first-child { font-size: clamp(15px, 3.9vw, 20px) !important; line-height: 1.08 !important; }
+.nav-button b { display:block !important; font-size: clamp(10.5px, 2.75vw, 14px) !important; line-height: 1.05 !important; }
+.nav-button .nav-sub,
+.nav-button.guardian .nav-sub { font-size: clamp(7.5px, 2vw, 9.5px) !important; line-height: 1.1 !important; margin-top: 2px !important; }
+.nav-button.guardian { background: linear-gradient(180deg, #ff82aa, #ef5d8c) !important; }
+
+/* Setup flow: prevent input overflow and keep cards inside screen */
+.egg-scene.setup-scene,
+.profile-scene {
+  height: 100% !important;
+  display: grid !important;
+  grid-template-rows: minmax(165px, .9fr) auto auto !important;
+  gap: clamp(12px, 1.9svh, 20px) !important;
+  align-content: end !important;
+  overflow: hidden !important;
+}
+.egg-scene.setup-scene .appearance-stage.story-appearance,
+.profile-scene .appearance-stage.story-appearance {
+  height: clamp(155px, 28svh, 230px) !important;
+  margin: 0 auto clamp(8px, 1.5svh, 16px) !important;
+  align-self: end !important;
+}
+.egg-scene.setup-scene .message-card,
+.profile-scene .message-card {
+  width: min(92vw, 640px) !important;
+  margin: 0 auto !important;
+  padding: clamp(12px, 2.1svh, 18px) clamp(14px, 3.3vw, 20px) !important;
+  font-size: clamp(17px, 4.35vw, 23px) !important;
+  line-height: 1.48 !important;
+}
+.egg-scene.setup-scene .name-panel,
+.profile-scene .profile-form {
+  width: min(92vw, 640px) !important;
+  margin: 0 auto !important;
+  padding: clamp(12px, 2.2svh, 17px) !important;
+  overflow: hidden !important;
+}
+.egg-scene.setup-scene .name-input,
+.egg-scene.setup-scene .date-input,
+.profile-scene .name-input,
+.profile-scene .date-input,
+.date-input {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+@media (max-height: 760px), (max-width: 390px) {
+  .home-scene { grid-template-rows: minmax(218px, 1fr) auto auto !important; gap: 9px !important; }
+  .home-scene .appearance-stage.home-appearance { height: 218px !important; margin-bottom: 11px !important; }
+  .home-scene .appearance-stage.home-appearance .light-drop { width: 172px !important; height: 172px !important; }
+  .home-message { min-height: 50px !important; font-size: 16px !important; padding: 8px 12px !important; }
+  .home-menu { gap: 6px !important; }
+  .nav-button,
+  .nav-button.profile,
+  .nav-button.appearance,
+  .nav-button.guardian,
+  .nav-button.care { height: 52px !important; min-height: 52px !important; border-radius: 14px !important; }
+  .nav-button > span:first-child { font-size: 14px !important; }
+  .nav-button b { font-size: 9.5px !important; }
+  .nav-button .nav-sub, .nav-button.guardian .nav-sub { font-size: 6.6px !important; }
+  .egg-scene.setup-scene, .profile-scene { grid-template-rows: minmax(128px, .75fr) auto auto !important; gap: 8px !important; }
+  .egg-scene.setup-scene .appearance-stage.story-appearance, .profile-scene .appearance-stage.story-appearance { height: 118px !important; margin-bottom: 5px !important; }
+  .egg-scene.setup-scene .appearance-stage.story-appearance .light-drop, .profile-scene .appearance-stage.story-appearance .light-drop { width: 112px !important; height: 112px !important; }
+  .egg-scene.setup-scene .message-card, .profile-scene .message-card { font-size: 15.5px !important; padding: 9px 12px !important; }
+  .egg-scene.setup-scene .name-panel, .profile-scene .profile-form { padding: 9px !important; }
+}

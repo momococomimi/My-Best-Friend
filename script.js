@@ -9,7 +9,7 @@ window.MBFStorage = (() => {
 
   function defaultData() {
     return {
-      version: '2.4.0',
+      version: '2.4.1',
       createdAt: new Date().toISOString(),
       userName: '',
       friendName: '',
@@ -467,9 +467,9 @@ window.MBFHome = (() => {
           <button class="nav-button voice" id="voiceBtn"><span>🎙<b>Voice</b><span class="nav-sub">声ではなす</span></span></button>
           <button class="nav-button message" id="messageBtn"><span>💬<b>Message</b><span class="nav-sub">文字ではなす</span></span></button>
           <button class="nav-button memory" id="memoryBtn"><span>📖<b>Memory</b><span class="nav-sub">思い出</span></span></button>
-          <button class="nav-button care" id="careBtn"><span>🤲<b>Care</b><span class="nav-sub">気づかう</span></span></button>
+          <button class="nav-button profile" id="profileBtn"><span>👤<b>Profile</b><span class="nav-sub">きみのこと</span></span></button>
           <button class="nav-button appearance" id="appearanceBtn"><span>✨<b>Appearance</b><span class="nav-sub">いまの姿</span></span></button>
-          <button class="nav-button guardian" id="guardianBtn"><span>🛡<b>Guardian</b><span class="nav-sub">受け継ぐ守り人</span></span></button>
+          <button class="nav-button guardian" id="guardianBtn"><span>🛡<b>Guardian</b><span class="nav-sub">見守り設定</span></span></button>
         </div>
       </section>
     `);
@@ -482,11 +482,11 @@ window.MBFHome = (() => {
     });
     startComments(comments);
     document.getElementById('memoryBtn').addEventListener('click', () => MBFMemory.render(data));
+    document.getElementById('profileBtn').addEventListener('click', () => MBFProfile.renderBook(data));
     document.getElementById('appearanceBtn').addEventListener('click', () => MBFAppearance.render(data));
     document.getElementById('guardianBtn').addEventListener('click', () => MBFGuardian.open(data));
     document.getElementById('voiceBtn').addEventListener('click', () => MBFVoice.render(data));
     document.getElementById('messageBtn').addEventListener('click', () => MBFMessage.render(data));
-    document.getElementById('careBtn').addEventListener('click', () => MBFCare.render(data));
   }
 
   function startComments(comments) {
@@ -732,7 +732,7 @@ window.MBFGuardian = (() => {
         <div class="guardian-card card">
           <div class="guardian-symbol">🔒</div>
           <h2>Guardian</h2>
-          <p>いまは大人が守り、いつか本人へ受け継ぐ場所です。</p>
+          <p>いまは大人が守り、大切な設定を見守る場所です。</p>
           <label for="newGuardianPass">パスワードを決める</label>
           <input id="newGuardianPass" class="guardian-input" type="password" minlength="4" maxlength="64" autocomplete="new-password" />
           <label for="confirmGuardianPass">もう一度入力</label>
