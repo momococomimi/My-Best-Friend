@@ -9,7 +9,7 @@ window.MBFStorage = (() => {
 
   function defaultData() {
     return {
-      version: '2.3.3',
+      version: '2.4.0',
       createdAt: new Date().toISOString(),
       userName: '',
       friendName: '',
@@ -33,7 +33,8 @@ window.MBFStorage = (() => {
         appearanceOptions: ['LIGHT', 'LIQUID', 'WIND', 'TREE', 'ANIMAL', 'ROBOT', 'CUSTOM']
       },
       birthdayCelebrations: [],
-      conversations: []
+      conversations: [],
+      mood: { current: 'calm', lastSeenAt: '', lastTouchedAt: '', careCount: 0 }
     };
   }
 
@@ -54,6 +55,7 @@ window.MBFStorage = (() => {
     if (!Array.isArray(merged.memories)) merged.memories = [];
     if (!Array.isArray(merged.birthdayCelebrations)) merged.birthdayCelebrations = [];
     if (!Array.isArray(merged.conversations)) merged.conversations = [];
+    merged.mood = { ...base.mood, ...(source.mood || {}) };
     if (!Array.isArray(merged.friend.appearanceHistory)) merged.friend.appearanceHistory = [];
     merged.friend.appearance = { ...base.friend.appearance, ...(merged.friend.appearance || {}) };
     if (!merged.friend.appearance.unlockedDate) merged.friend.appearance.unlockedDate = merged.createdAt || new Date().toISOString();
@@ -374,52 +376,125 @@ window.MBFStory = (() => {
 
   return { renderEgg, renderAskFriendName, renderAskUserName, renderAskBirthday, renderAskGender, renderPromise };
 })();
+window.MBFMood = (() => {
+  const LABELS = {
+    happy: 'にこにこ', calm: 'おだやか', sleepy: 'すやすや', excited: 'わくわく', thinking: '考え中', lonely: '会えてうれしい'
+  };
+  const APPEARANCE = {
+    happy: { color: '#7bdcff', name: '光のしずく', type: 'LIGHT' },
+    calm: { color: '#78d3ff', name: '光のしずく', type: 'LIGHT' },
+    sleepy: { color: '#b7b8ff', name: '夜明けのしずく', type: 'LIGHT' },
+    excited: { color: '#ffd36f', name: 'きらめきのしずく', type: 'LIGHT' },
+    thinking: { color: '#9be0d2', name: '考えるしずく', type: 'LIQUID' },
+    lonely: { color: '#9bc9ff', name: '待っていたしずく', type: 'LIGHT' }
+  };
+  function nowHour() { return new Date().getHours(); }
+  function timeMood() {
+    const h = nowHour();
+    if (h >= 21 || h < 6) return 'sleepy';
+    if (h >= 6 && h < 10) return 'calm';
+    if (h >= 10 && h < 17) return 'happy';
+    return 'calm';
+  }
+  function daysSince(dateText) {
+    if (!dateText) return 0;
+    const then = new Date(dateText).getTime();
+    if (Number.isNaN(then)) return 0;
+    return Math.floor((Date.now() - then) / 86400000);
+  }
+  function updateOnVisit(data) {
+    const awayDays = daysSince(data.mood?.lastSeenAt);
+    data.mood ||= { current: 'calm' };
+    data.mood.current = awayDays >= 2 ? 'lonely' : timeMood();
+    data.mood.lastSeenAt = new Date().toISOString();
+    applyAppearance(data);
+    MBFStorage.save(data);
+    return data;
+  }
+  function setMood(data, mood) {
+    data.mood ||= { current: 'calm' };
+    data.mood.current = mood || 'calm';
+    if (mood === 'happy' || mood === 'excited') data.mood.lastTouchedAt = new Date().toISOString();
+    applyAppearance(data);
+    MBFStorage.save(data);
+    return data;
+  }
+  function applyAppearance(data) {
+    const mood = data.mood?.current || 'calm';
+    const style = APPEARANCE[mood] || APPEARANCE.calm;
+    data.friend ||= {};
+    data.friend.appearance ||= {};
+    data.friend.appearance = { ...data.friend.appearance, ...style, mood };
+  }
+  function label(mood) { return LABELS[mood || 'calm'] || LABELS.calm; }
+  function comments(data) {
+    const name = data.profile?.preferredName || data.userName || 'キミ';
+    const h = nowHour();
+    const base = [];
+    if (h >= 5 && h < 10) base.push(`おはよう、${name}。`);
+    else if (h >= 18 && h < 22) base.push(`今日もおつかれさま、${name}。`);
+    else if (h >= 22 || h < 5) base.push('ねむくなったら、ゆっくり休もうね。');
+    else base.push(`今日は何して遊ぶ？`);
+    const mood = data.mood?.current || 'calm';
+    const moodLines = {
+      happy: ['会えてうれしいよ。', 'えへへ、そばにいるよ。'],
+      calm: ['ここにいるよ。', 'ゆっくりで大丈夫だよ。'],
+      sleepy: ['少し静かにしているね。', '一緒に休もう。'],
+      excited: ['なんだか、わくわくするね。', 'きらきらしてきたよ。'],
+      thinking: ['一緒に考えよう。', '大切なこと、ゆっくり聞くよ。'],
+      lonely: ['また会えて、本当にうれしい。', '帰ってきてくれてありがとう。']
+    };
+    return [...base, ...(moodLines[mood] || moodLines.calm), '姿は変わっても、ぼくはぼくだよ。'];
+  }
+  return { updateOnVisit, setMood, label, comments };
+})();
+
 window.MBFHome = (() => {
-  const HOME_COMMENTS = [
-    'ずっと会いたかった。',
-    'キミのこと、教えてくれる？',
-    '今日も一緒にいられて、うれしいよ。',
-    'これからも、ずっと一緒だよ。',
-    '何があっても、そばにいるよ。'
-  ];
   let commentTimer = null;
 
   function render(data) {
     if (commentTimer) clearInterval(commentTimer);
+    data = MBFMood.updateOnVisit(data);
+    const mood = data.mood?.current || 'calm';
+    const comments = MBFMood.comments(data);
     MBFUi.set(`
       <section class="home-scene">
-        ${MBFAppearance.renderFriendShape(MBFAppearance.current(data), 'home-appearance')}
+        ${MBFAppearance.renderFriendShape(MBFAppearance.current(data), `home-appearance mood-${mood}`)}
         <div class="home-message card" aria-live="polite">
-          <div id="homeComment">${escapeHtml(HOME_COMMENTS[0])}</div>
+          <div id="homeComment">${escapeHtml(comments[0])}</div>
         </div>
         <div class="home-menu">
           <button class="nav-button voice" id="voiceBtn"><span>🎙<b>Voice</b><span class="nav-sub">声ではなす</span></span></button>
           <button class="nav-button message" id="messageBtn"><span>💬<b>Message</b><span class="nav-sub">文字ではなす</span></span></button>
           <button class="nav-button memory" id="memoryBtn"><span>📖<b>Memory</b><span class="nav-sub">思い出</span></span></button>
-          <button class="nav-button profile" id="profileBtn"><span>👤<b>Profile</b><span class="nav-sub">きみのこと</span></span></button>
+          <button class="nav-button care" id="careBtn"><span>🤲<b>Care</b><span class="nav-sub">気づかう</span></span></button>
           <button class="nav-button appearance" id="appearanceBtn"><span>✨<b>Appearance</b><span class="nav-sub">いまの姿</span></span></button>
-          <button class="nav-button guardian" id="guardianBtn"><span>🛡<b>Guardian</b><span class="nav-sub">見守り設定</span></span></button>
+          <button class="nav-button guardian" id="guardianBtn"><span>🛡<b>Guardian</b><span class="nav-sub">受け継ぐ守り人</span></span></button>
         </div>
       </section>
     `);
     MBFAppearance.bindFriendTouch(document.querySelector('.home-appearance'), () => {
-      setHomeComment('えへへ。ここにいるよ。');
+      data = MBFMood.setMood(data, 'happy');
+      setHomeComment('えへへ。なでてくれて、うれしい。');
+      const root = document.querySelector('.home-appearance');
+      root?.classList.remove('mood-calm','mood-sleepy','mood-excited','mood-thinking','mood-lonely');
+      root?.classList.add('mood-happy');
     });
-    startComments();
+    startComments(comments);
     document.getElementById('memoryBtn').addEventListener('click', () => MBFMemory.render(data));
-    document.getElementById('profileBtn').addEventListener('click', () => MBFProfile.renderBook(data));
     document.getElementById('appearanceBtn').addEventListener('click', () => MBFAppearance.render(data));
     document.getElementById('guardianBtn').addEventListener('click', () => MBFGuardian.open(data));
     document.getElementById('voiceBtn').addEventListener('click', () => MBFVoice.render(data));
     document.getElementById('messageBtn').addEventListener('click', () => MBFMessage.render(data));
+    document.getElementById('careBtn').addEventListener('click', () => MBFCare.render(data));
   }
 
-  function startComments() {
+  function startComments(comments) {
     let index = 0;
     commentTimer = setInterval(() => {
-      index = (index + 1) % HOME_COMMENTS.length;
-      setHomeComment(HOME_COMMENTS[index]);
-    }, 6500);
+      index = (index + 1) % comments.length;
+      setHomeComment(comments[index]);
+    }, 8000);
   }
 
   function setHomeComment(text) {
@@ -431,9 +506,10 @@ window.MBFHome = (() => {
     el.classList.add('comment-fade');
   }
 
-  function escapeHtml(str) { return String(str || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+  function escapeHtml(str) { return String(str || '').replace(/[&<>']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;'}[c])); }
   return { render };
 })();
+
 
 window.MBFVoice = (() => {
   function render(data) {
@@ -725,6 +801,46 @@ window.MBFGuardian = (() => {
   return { open };
 })();
 
+window.MBFCare = (() => {
+  function esc(str) { return String(str || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+  function render(data) {
+    const mood = data.mood?.current || 'calm';
+    MBFUi.set(`
+      <section class="care-wrap">
+        <article class="care-card card">
+          <div class="care-label">Care</div>
+          ${MBFAppearance.renderFriendShape(MBFAppearance.current(data), `care-friend mood-${mood}`)}
+          <h2>いまの気分：${esc(MBFMood.label(mood))}</h2>
+          <p id="careLine">そばにいるよ。今日はどんなふうに過ごそうか。</p>
+          <div class="care-actions-mini">
+            <button id="carePet">🤲 なでる</button>
+            <button id="careRest">🌙 休む</button>
+            <button id="carePlay">✨ 遊ぶ</button>
+          </div>
+        </article>
+        <div class="talk-actions"><button id="careHome" class="secondary-button">ホームへ戻る</button></div>
+      </section>
+    `);
+    MBFAppearance.bindFriendTouch(document.querySelector('.care-friend'), () => setCareMood(data, 'happy', 'えへへ。あったかいね。'));
+    document.getElementById('carePet').addEventListener('click', () => setCareMood(data, 'happy', 'なでなで、うれしいな。'));
+    document.getElementById('careRest').addEventListener('click', () => setCareMood(data, 'sleepy', '少し休もう。ぼくも静かにそばにいるね。'));
+    document.getElementById('carePlay').addEventListener('click', () => setCareMood(data, 'excited', 'わくわくしてきたよ。何して遊ぶ？'));
+    document.getElementById('careHome').addEventListener('click', () => MBFHome.render(data));
+  }
+  function setCareMood(data, mood, line) {
+    data = MBFMood.setMood(data, mood);
+    const el = document.getElementById('careLine');
+    if (el) el.textContent = line;
+    const root = document.querySelector('.care-friend');
+    if (root) {
+      root.classList.remove('mood-happy','mood-calm','mood-sleepy','mood-excited','mood-thinking','mood-lonely');
+      root.classList.add(`mood-${mood}`);
+    }
+    MBFUi.sparkleBurst(mood === 'excited' ? 16 : 8);
+  }
+  return { render };
+})();
+
 window.MBFAppearance = (() => {
   const TYPES = {
     LIGHT: '光', LIQUID: '流体', WIND: '風', TREE: '木', ANIMAL: '動物', ROBOT: 'ロボット', CUSTOM: '自由な姿'
@@ -767,6 +883,7 @@ window.MBFAppearance = (() => {
             <div><dt>現在の姿</dt><dd>${iconFor(appearance.type)} ${esc(appearance.name)}</dd></div>
             <div><dt>種類</dt><dd>${esc(TYPES[appearance.type] || appearance.type)}</dd></div>
             <div><dt>動き</dt><dd>呼吸する光と、ひろがる波紋</dd></div>
+            <div><dt>気分</dt><dd>${esc(MBFMood.label(data.mood?.current || 'calm'))}</dd></div>
           </dl>
           <div class="appearance-philosophy">
             ぼくの姿は、これから何度でも変わる。<br>
@@ -842,7 +959,7 @@ window.MBFMemory = (() => {
 })();
 (() => {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./service-worker.js?v=2.3.3').then(reg => reg.update()).catch(() => {});
+    navigator.serviceWorker.register('./service-worker.js?v=2.4.0').then(reg => reg.update()).catch(() => {});
   }
 
   let data = MBFStorage.load();

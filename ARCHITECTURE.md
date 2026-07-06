@@ -25,3 +25,11 @@ The Friend’s body is still separate from identity. The same Friend can later i
 - Friend comments fade in place instead of sliding.
 - Friend touch changes facial expression temporarily.
 - Home layout is biased toward a single iPhone viewport without scrolling.
+
+
+## v2.4.0 Care & Mood
+
+- Mood is stored as part of Friend state.
+- Appearance changes automatically based on Mood.
+- Care actions can gently change Mood without using points, levels, or rewards.
+- The Friend remains the same identity even when color, light, or animation changes.
