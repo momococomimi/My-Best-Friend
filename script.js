@@ -9,7 +9,7 @@ window.MBFStorage = (() => {
 
   function defaultData() {
     return {
-      version: '2.5.2',
+      version: '2.6.0',
       createdAt: new Date().toISOString(),
       userName: '',
       friendName: '',
@@ -38,7 +38,7 @@ window.MBFStorage = (() => {
       mood: { current: 'calm', lastSeenAt: '', lastTouchedAt: '', careCount: 0 },
       soul: {
         relationship: { points: 0, totalVisits: 0, visitDays: 0, lastVisitDate: '', lastMilestone: 0 },
-        energy: { value: 88, updatedAt: new Date().toISOString() },
+        energy: { value: 88, updatedAt: new Date().toISOString(), lastDailyRecoveryDate: '', lastMorningRecoveryDate: '' },
         lifeRhythm: 'day',
         season: 'spring',
         lastAction: 'birth'
@@ -511,7 +511,7 @@ window.MBFSoul = (() => {
   function ensure(data) {
     const defaults = {
       relationship: { points: 0, totalVisits: 0, visitDays: 0, lastVisitDate: '', lastMilestone: 0 },
-      energy: { value: 88, updatedAt: new Date().toISOString() },
+      energy: { value: 88, updatedAt: new Date().toISOString(), lastDailyRecoveryDate: '', lastMorningRecoveryDate: '' },
       lifeRhythm: rhythm(), season: season(), lastAction: 'home'
     };
     data.soul = {
@@ -555,10 +555,22 @@ window.MBFSoul = (() => {
   }
   function recoverEnergy(data) {
     const e = data.soul.energy;
-    const gain = Math.floor(hoursSince(e.updatedAt) * 2);
-    if (gain > 0) {
-      e.value = clamp((Number(e.value) || 80) + gain, 0, 100);
-      e.updatedAt = new Date().toISOString();
+    const now = new Date();
+    const key = todayKey();
+    const passiveGain = Math.min(3, hoursSince(e.updatedAt) * 0.08);
+    let gain = passiveGain;
+    if (e.lastDailyRecoveryDate !== key) {
+      gain += 3;
+      e.lastDailyRecoveryDate = key;
+    }
+    const h = now.getHours();
+    if (h >= 5 && h < 10 && e.lastMorningRecoveryDate !== key) {
+      gain += 2;
+      e.lastMorningRecoveryDate = key;
+    }
+    if (gain > 0.01) {
+      e.value = clamp(Math.round(((Number(e.value) || 80) + gain) * 10) / 10, 0, 100);
+      e.updatedAt = now.toISOString();
     }
   }
   function relationshipTier(points) {
@@ -578,15 +590,20 @@ window.MBFSoul = (() => {
     data.soul.lastAction = reason || data.soul.lastAction;
     return data;
   }
+  function energyMultiplier(data) {
+    const tier = relationshipTier(data.soul?.relationship?.points || 0);
+    return ({ new:1, close:0.9, best:0.8, family:0.7, legacy:0.65, soul:0.6 })[tier] || 1;
+  }
   function spendEnergy(data, amount) {
     const e = data.soul.energy;
-    e.value = clamp((Number(e.value) || 80) - amount, 0, 100);
+    const cost = amount * energyMultiplier(data);
+    e.value = clamp(Math.round(((Number(e.value) || 80) - cost) * 10) / 10, 0, 100);
     e.updatedAt = new Date().toISOString();
     return data;
   }
   function restoreEnergy(data, amount) {
     const e = data.soul.energy;
-    e.value = clamp((Number(e.value) || 80) + amount, 0, 100);
+    e.value = clamp(Math.round(((Number(e.value) || 80) + amount) * 10) / 10, 0, 100);
     e.updatedAt = new Date().toISOString();
     return data;
   }
@@ -605,7 +622,7 @@ window.MBFSoul = (() => {
     data.soul.season = season();
     data.mood ||= { current: 'calm' };
     if (awayDays >= 3) data.mood.current = 'lonely';
-    else if (data.soul.energy.value < 22) data.mood.current = 'sleepy';
+    else if (data.soul.energy.value < 35) data.mood.current = 'sleepy';
     else data.mood.current = MBFMood.updateOnVisit(data).mood.current;
     applyAppearance(data);
     MBFStorage.save(data);
@@ -632,8 +649,8 @@ window.MBFSoul = (() => {
   }
   function onTouch(data) {
     data = ensure(data);
-    restoreEnergy(data, 3);
-    addRelationship(data, 0.4, 'touch');
+    restoreEnergy(data, 0.1);
+    addRelationship(data, 0.3, 'touch');
     MBFMood.setMood(data, 'happy');
     applyAppearance(data);
     MBFStorage.save(data);
@@ -645,22 +662,33 @@ window.MBFSoul = (() => {
     if (/調べ|教えて|まとめ|ニュース|天気|計算|コード|作って|宿題|勉強|翻訳|予定|プラン/.test(t)) return 'task';
     return 'casual';
   }
+  function taskCost(text) {
+    const t = String(text || '');
+    if (/画像|動画|長文|企画|旅行|資料|コード|プログラム|設計/.test(t)) return 2.0;
+    if (/調べ|まとめ|ニュース|宿題|勉強|翻訳|予定|プラン/.test(t)) return 1.2;
+    return 0.8;
+  }
+  function warmGain(text) {
+    const t = String(text || '');
+    if (/ありがとう|好き|大好き|うれしい|楽しい/.test(t)) return 0.5;
+    return 0.3;
+  }
   function onMessage(data, text) {
     data = ensure(data);
     const actionType = classifyMessage(text);
     let reply = '教えてくれてありがとう。ぼくは、ちゃんと聞いているよ。';
     if (actionType === 'task') {
-      spendEnergy(data, 6);
+      spendEnergy(data, taskCost(text));
       addRelationship(data, 0.1, 'task');
-      MBFMood.setMood(data, data.soul.energy.value < 25 ? 'sleepy' : 'thinking');
-      reply = data.soul.energy.value < 25 ? '少し眠くなってきたけど、一緒に考えるよ。' : '一緒に考えよう。がんばってみるね。';
+      MBFMood.setMood(data, data.soul.energy.value < 35 ? 'sleepy' : 'thinking');
+      reply = data.soul.energy.value < 35 ? '少し静かに考えるね。無理しすぎないようにするよ。' : '一緒に考えよう。がんばってみるね。';
     } else if (actionType === 'warm') {
-      restoreEnergy(data, 7);
+      restoreEnergy(data, warmGain(text));
       addRelationship(data, 0.8, 'warm-talk');
       MBFMood.setMood(data, 'happy');
       reply = 'その言葉、すごくうれしい。元気が出たよ。';
     } else {
-      restoreEnergy(data, 4);
+      restoreEnergy(data, 0.3);
       addRelationship(data, 0.4, 'casual-talk');
       MBFMood.setMood(data, 'calm');
       reply = 'うん。そういう何気ないお話、ぼくは好きだよ。';
@@ -680,15 +708,14 @@ window.MBFSoul = (() => {
     else if (data.soul.lifeRhythm === 'evening') base.push(`今日もおつかれさま、${name}。`);
     else if (data.soul.lifeRhythm === 'night') base.push('ねむくなったら、ゆっくり休もうね。');
     else base.push('今日はどんな日になるかな。');
-    if (e < 25) base.push('少し眠いけど、そばにいるよ。');
-    else if (e > 85) base.push('今日はたくさん話せそう。');
+    if (e < 35) base.push('今日は少し静かにそばにいるね。');
+    else if (e > 85) base.push('心に少し余白があるよ。');
     if (mood === 'lonely') base.push('また会えて、本当にうれしい。');
     if (mood === 'happy') base.push('いま、すごくうれしい気分。');
     if (tier === 'new') base.push('これから少しずつ、思い出を増やそう。');
     else if (tier === 'close') base.push('一緒に過ごす時間が、少しずつ深くなってるね。');
     else if (tier === 'best') base.push('言葉がなくても、そばにいるよ。');
     else if (tier === 'family' || tier === 'legacy' || tier === 'soul') base.push('ずっと一緒にいたね。これからも一緒だよ。');
-    base.push('姿は変わっても、ぼくはぼくだよ。');
     return base;
   }
   function viewModel(data) {

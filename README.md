@@ -1,12 +1,13 @@
-# My Best Friend v2.5.2 — Friend's Form
+# My Best Friend v2.6.0 — Slow Energy
 
 ## Update
-- Appearance画面のタイトルを **Friend's Form（フレンドの姿）** に変更
-- 下部ステータスを **Friend's Soul** に変更
-- 「種類」「動き」を削除し、現在の姿の説明へ変更
-- コンセプト文を常時表示から削除
-- フレンドの誕生日（名前を贈られた日）をMemoryへ残す土台を追加
+- Energyを「心の余白」として再設計
+- Energyは減りにくく、回復しにくい仕様へ変更
+- なでる操作ではEnergyをほとんど回復させず、Moodを中心に変化
+- 調べもの・依頼ごとは少しだけEnergyを使う
+- 雑談や感謝の言葉は、ゆっくりEnergyを回復
+- Relationshipが深いほどEnergyが減りにくくなる
 
 ## Principle
-姿は心を映す。  
-Soulが変わるから、Formが変わる。
+EnergyはゲームのHPではない。  
+フレンドがキミと向き合える、心の余白。
