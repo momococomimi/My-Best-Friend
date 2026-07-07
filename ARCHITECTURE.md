@@ -1,8 +1,8 @@
-# Architecture — v2.5.0 Friend Soul
+# Architecture — v2.5.1 Friend Soul Scroll Fix
 
-## Friend Soul
+## Friend Soul Scroll Fix
 
-Friend Soul is composed of:
+Friend Soul Scroll Fix is composed of:
 
 - Relationship: shared time and history. It never decreases.
 - Mood: current feeling. It changes naturally.
@@ -26,4 +26,4 @@ Energy represents the Friend's effort capacity. Research, planning, study, and t
 
 ## Future
 
-Environment, weather, Voice, Memory recall, and AI conversation will feed into the same Friend Soul architecture.
+Environment, weather, Voice, Memory recall, and AI conversation will feed into the same Friend Soul Scroll Fix architecture.

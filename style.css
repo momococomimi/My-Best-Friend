@@ -1767,3 +1767,65 @@ body[data-screen="appearance-wrap"] .screen {
 .relationship-legacy .light-drop::before { background: radial-gradient(circle, rgba(212,184,255,.38), transparent 68%); }
 .relationship-soul .light-drop::before { background: radial-gradient(circle, rgba(255,245,180,.52), rgba(150,225,255,.18) 45%, transparent 72%); }
 @keyframes soulGlow { 0%,100% { transform: scale(.95); opacity:.65; } 50% { transform: scale(1.06); opacity: 1; } }
+
+/* v2.5.1 Friend Soul Scroll Fix */
+body[data-screen="appearance-wrap"] {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  min-height: 100dvh !important;
+  height: auto !important;
+}
+body[data-screen="appearance-wrap"] .app-shell {
+  min-height: 100dvh !important;
+  height: auto !important;
+  overflow-x: hidden !important;
+  overflow-y: visible !important;
+  padding-bottom: calc(24px + var(--safe-bottom)) !important;
+}
+body[data-screen="appearance-wrap"] .screen {
+  height: auto !important;
+  min-height: calc(100dvh - 86px - var(--safe-top) - var(--safe-bottom)) !important;
+  overflow: visible !important;
+  display: block !important;
+}
+.appearance-wrap {
+  height: auto !important;
+  min-height: 0 !important;
+  display: block !important;
+  overflow: visible !important;
+  padding: 0 0 calc(26px + var(--safe-bottom)) !important;
+}
+.appearance-book {
+  height: auto !important;
+  min-height: auto !important;
+  overflow: visible !important;
+  margin: 0 auto 14px !important;
+  padding-bottom: 26px !important;
+}
+.appearance-stage {
+  flex: none !important;
+}
+.appearance-actions {
+  position: static !important;
+  width: min(94vw, 640px) !important;
+  margin: 0 auto !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+  padding-bottom: 6px !important;
+}
+.appearance-actions .primary-button,
+.appearance-actions .secondary-button {
+  min-height: 52px !important;
+}
+.friend-soul,
+.soul-card,
+.soul-panel,
+.appearance-soul {
+  max-height: none !important;
+  overflow: visible !important;
+}
+@supports not (height: 100dvh) {
+  body[data-screen="appearance-wrap"] .app-shell { min-height: 100svh !important; }
+  body[data-screen="appearance-wrap"] .screen { min-height: calc(100svh - 86px - var(--safe-top) - var(--safe-bottom)) !important; }
+}
