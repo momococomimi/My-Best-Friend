@@ -1931,7 +1931,7 @@ body[data-screen="appearance-wrap"] .screen {
 .appearance-stage::after { display: none !important; }
 
 
-/* v2.9.0 Living Friend — time-aware world, safer aura, Guardian button unification */
+/* v2.9.1 Living Friend — time-aware world, safer aura, Guardian button unification */
 body[data-rhythm="morning"] {
   --sky-top:#9ee6ff;
   --sky-mid:#d7f5ef;
@@ -2003,3 +2003,33 @@ body[data-rhythm="morning"] .sun-glow { opacity:.72; }
 /* Let Guardian pages breathe/scroll while keeping same visual language */
 body[data-screen="guardian-wrap"] .app-shell { overflow: visible; }
 body[data-screen="guardian-wrap"] .guardian-wrap { padding-bottom: max(36px, var(--safe-bottom)); }
+
+
+/* v2.9.1 Less UI, More Life */
+.form-reason { display: none !important; }
+.form-description p { max-width: 92%; margin-left:auto; margin-right:auto; }
+.identity-panel-simple { padding-top: 20px; padding-bottom: 20px; }
+.identity-panel-simple p { margin-bottom: 0; }
+/* Safer aura for Safari full-page screenshots */
+.drop-wave { display:none !important; }
+.appearance-stage::before {
+  width: 70% !important;
+  height: 70% !important;
+  background: radial-gradient(circle, rgba(135,220,255,.16) 0%, rgba(135,220,255,.08) 50%, rgba(255,255,255,0) 74%) !important;
+  border: 2px solid rgba(126,211,255,.14) !important;
+  box-shadow: none !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+}
+.light-drop { box-shadow: inset 0 -14px 26px rgba(26,107,155,.10), 0 18px 36px rgba(36,112,148,.14) !important; }
+.guardian-card .guardian-back-button {
+  display:block;
+  width:100%;
+  border:0;
+  color:#fff;
+  background:linear-gradient(180deg, #66d3bc, #44bfa2);
+  border-radius:24px;
+  box-shadow:0 10px 0 rgba(57, 130, 107, .28);
+  text-decoration:none;
+  font-weight:900;
+}

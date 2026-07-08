@@ -34,10 +34,19 @@
 - キャッシュ確認用バージョンをv2.8.2へ更新
 
 
-## v2.9.0 Living Friend
+## v2.9.1 Living Friend
 
 - 時間帯で背景の空気が変化
 - Friend's Formに「どうして今この姿なの？」を追加
 - Safariフルページスクショで崩れにくい安全なオーラへ調整
 - Guardianの戻るボタンを他画面と同じボタンUIに統一
 - 将来の天気・PWA・小窓表示に備えたLiving Friend設計を継続
+
+
+## v2.9.1 Less UI, More Life
+
+- Friend's Formから「どうして今この姿なの？」を削除
+- 現在の姿の説明を短く整理
+- Friend's Identityは文章表示を維持
+- Safariフルページスクショで黒い楕円が出にくいようオーラをさらに単純化
+- Guardianの戻るボタンを他画面と同じデザインへ統一
