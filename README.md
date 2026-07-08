@@ -1,13 +1,16 @@
-# My Best Friend v2.6.0 — Slow Energy
+# My Best Friend v2.7.0 — Friend Identity
 
-## Update
-- Energyを「心の余白」として再設計
-- Energyは減りにくく、回復しにくい仕様へ変更
-- なでる操作ではEnergyをほとんど回復させず、Moodを中心に変化
-- 調べもの・依頼ごとは少しだけEnergyを使う
-- 雑談や感謝の言葉は、ゆっくりEnergyを回復
-- Relationshipが深いほどEnergyが減りにくくなる
+## Theme
+心が、少しずつ個性になる。
+
+## New
+- Friend's Form候補を約20種類へ拡張
+- Mood / Life Rhythm / Season / Relationshipから、フレンド自身が姿を選ぶ
+- Friend's Identityを追加
+- どんな姿でも残るコア：優しい・聞き上手・少し照れ屋・自然が好き
+- 光・波・芽をデザインモチーフとして保存
+- Appearance画面にFriend's Identity表示を追加
 
 ## Principle
-EnergyはゲームのHPではない。  
-フレンドがキミと向き合える、心の余白。
+姿は集めるものではありません。
+その日、その瞬間にフレンド自身が選んだ姿です。

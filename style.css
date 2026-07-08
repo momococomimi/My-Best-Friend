@@ -1871,3 +1871,50 @@ body[data-screen="appearance-wrap"] .screen {
   .form-description { padding: 15px 14px; margin-top: 12px; }
   .form-description p { font-size: 17px; line-height: 1.72; }
 }
+
+
+/* v2.7.0 Friend Identity */
+.form-motif {
+  position: absolute;
+  top: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 7;
+  font-size: clamp(18px, 5.2vw, 30px);
+  line-height: 1;
+  opacity: .88;
+  filter: drop-shadow(0 4px 8px rgba(60, 120, 150, .18));
+  pointer-events: none;
+}
+.appearance-stage.form-harmony-form .light-drop,
+.appearance-stage.relationship-legacy .light-drop,
+.appearance-stage.relationship-soul .light-drop {
+  box-shadow: 0 0 44px rgba(255,241,168,.55), inset 0 -18px 32px rgba(26,107,155,.11), 0 28px 56px rgba(36,112,148,.18);
+}
+.appearance-stage.form-animal-drop .drop-sprout { transform: translateX(-50%) scale(1.15); }
+.appearance-stage.form-animal-drop .form-motif { top: 2%; font-size: clamp(24px, 6.5vw, 38px); }
+.appearance-stage.form-snow-drop .drop-wave { border-color: rgba(230,255,255,.7); }
+.appearance-stage.form-rainbow-drop .drop-wave { border-color: rgba(255,180,245,.55); }
+.identity-panel {
+  margin: 14px 0;
+  padding: 14px;
+  border-radius: 22px;
+  background: rgba(255,255,255,.62);
+  border: 1px solid rgba(127, 196, 230, .25);
+}
+.identity-panel h3 { margin: 0 0 6px; font-size: clamp(16px, 4.2vw, 21px); }
+.identity-panel p { margin: 0 0 10px; color: #5f7886; font-size: clamp(12px, 3.2vw, 15px); font-weight: 800; line-height: 1.6; }
+.identity-tags, .identity-motifs { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; }
+.identity-tags span, .identity-motifs span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(126, 211, 255, .2);
+  color: #426b80;
+  font-size: 12px;
+  font-weight: 900;
+}
+.identity-motifs { margin-top: 8px; }
+.identity-motifs span { background: rgba(255, 242, 190, .55); }

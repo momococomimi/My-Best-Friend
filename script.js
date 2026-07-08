@@ -9,7 +9,7 @@ window.MBFStorage = (() => {
 
   function defaultData() {
     return {
-      version: '2.6.0',
+      version: '2.7.0',
       createdAt: new Date().toISOString(),
       userName: '',
       friendName: '',
@@ -30,7 +30,13 @@ window.MBFStorage = (() => {
           unlockedDate: ''
         },
         appearanceHistory: [],
-        appearanceOptions: ['LIGHT', 'LIQUID', 'WIND', 'TREE', 'ANIMAL', 'ROBOT', 'CUSTOM']
+        appearanceOptions: ['LIGHT', 'LIQUID', 'WIND', 'TREE', 'ANIMAL', 'ROBOT', 'CUSTOM'],
+        identity: {
+          core: ['やさしい', '聞き上手', '少し照れ屋', '自然が好き'],
+          motifs: ['光', '波', '芽'],
+          likes: ['朝の光', '雨の音', '小さな芽', '静かな時間'],
+          designCore: '丸い輪郭・優しい目・小さな笑顔'
+        }
       },
       birthdayCelebrations: [],
       friendBirthdayCelebrations: [],
@@ -72,6 +78,10 @@ window.MBFStorage = (() => {
       energy: { ...base.soul.energy, ...((source.soul || {}).energy || {}) }
     };
     if (!Array.isArray(merged.friend.appearanceHistory)) merged.friend.appearanceHistory = [];
+    merged.friend.identity = { ...base.friend.identity, ...(merged.friend.identity || {}) };
+    if (!Array.isArray(merged.friend.identity.core)) merged.friend.identity.core = base.friend.identity.core;
+    if (!Array.isArray(merged.friend.identity.motifs)) merged.friend.identity.motifs = base.friend.identity.motifs;
+    if (!Array.isArray(merged.friend.identity.likes)) merged.friend.identity.likes = base.friend.identity.likes;
     merged.friend.appearance = { ...base.friend.appearance, ...(merged.friend.appearance || {}) };
     if (!merged.friend.appearance.unlockedDate) merged.friend.appearance.unlockedDate = merged.createdAt || new Date().toISOString();
     if (!merged.profile.preferredName && merged.userName) merged.profile.preferredName = merged.userName;
@@ -628,6 +638,47 @@ window.MBFSoul = (() => {
     MBFStorage.save(data);
     return data;
   }
+  const FORM_CATALOG = [
+    { id:'dawn-drop', name:'夜明けのしずく', type:'LIGHT', motif:'🌅', color:'#9bd7ff', when:{ rhythm:'morning' } },
+    { id:'sun-drop', name:'おひさまのしずく', type:'LIGHT', motif:'☀️', color:'#ffd36f', when:{ mood:'happy', rhythm:'day' } },
+    { id:'wave-drop', name:'波のしずく', type:'LIQUID', motif:'🌊', color:'#6fd5ff', when:{ mood:'calm' } },
+    { id:'spring-wind', name:'春風のしずく', type:'WIND', motif:'🌸', color:'#ffb7cf', when:{ season:'spring' } },
+    { id:'rain-rest', name:'雨宿りのしずく', type:'LIQUID', motif:'🌧️', color:'#8fc8ff', when:{ mood:'lonely' } },
+    { id:'moon-drop', name:'月灯りのしずく', type:'LIGHT', motif:'🌙', color:'#b7b8ff', when:{ rhythm:'night' } },
+    { id:'star-drop', name:'星空のしずく', type:'LIGHT', motif:'⭐', color:'#c9b6ff', when:{ rhythm:'night', tier:'best' } },
+    { id:'forest-drop', name:'森のしずく', type:'TREE', motif:'🍃', color:'#91e6d0', when:{ tier:'close' } },
+    { id:'snow-drop', name:'雪のしずく', type:'LIGHT', motif:'❄️', color:'#e9fbff', when:{ season:'winter' } },
+    { id:'rainbow-drop', name:'虹のしずく', type:'LIGHT', motif:'🌈', color:'#f4b6ff', when:{ mood:'excited' } },
+    { id:'flower-drop', name:'花咲きのしずく', type:'TREE', motif:'🌼', color:'#ffd0a8', when:{ season:'spring', tier:'close' } },
+    { id:'sunbeam-drop', name:'木漏れ日のしずく', type:'TREE', motif:'🍂', color:'#ffd68a', when:{ season:'autumn' } },
+    { id:'sea-breeze', name:'潮風のしずく', type:'WIND', motif:'🫧', color:'#89e7ff', when:{ season:'summer' } },
+    { id:'wish-star', name:'願い星のしずく', type:'LIGHT', motif:'🌟', color:'#fff1a8', when:{ tier:'family' } },
+    { id:'sprout-drop', name:'新芽のしずく', type:'TREE', motif:'🌱', color:'#a7e98f', when:{ tier:'new' } },
+    { id:'warm-drop', name:'ぬくもりのしずく', type:'LIGHT', motif:'🔥', color:'#ffb189', when:{ mood:'happy', tier:'best' } },
+    { id:'cloud-drop', name:'雲あそびのしずく', type:'WIND', motif:'☁️', color:'#d7f3ff', when:{ mood:'calm', rhythm:'day' } },
+    { id:'water-mirror', name:'水鏡のしずく', type:'LIQUID', motif:'🪞', color:'#9be0d2', when:{ mood:'thinking' } },
+    { id:'animal-drop', name:'動物の姿', type:'ANIMAL', motif:'🐶', color:'#ffcf8f', when:{ mood:'excited', tier:'close' } },
+    { id:'harmony-form', name:'Harmony', type:'CUSTOM', motif:'🌱🌊☀️', color:'#fff1a8', when:{ tier:'legacy' } }
+  ];
+
+  function formMatches(form, context) {
+    const w = form.when || {};
+    if (w.mood && w.mood !== context.mood) return false;
+    if (w.rhythm && w.rhythm !== context.rhythm) return false;
+    if (w.season && w.season !== context.season) return false;
+    if (w.tier) {
+      const order = ['new','close','best','family','legacy','soul'];
+      if (order.indexOf(context.tier) < order.indexOf(w.tier)) return false;
+    }
+    return true;
+  }
+
+  function chooseForm(context) {
+    const candidates = FORM_CATALOG.filter(form => formMatches(form, context));
+    if (candidates.length) return candidates[candidates.length - 1];
+    return FORM_CATALOG.find(form => form.id === 'wave-drop') || FORM_CATALOG[0];
+  }
+
   function applyAppearance(data) {
     data = ensure(data);
     const tier = relationshipTier(data.soul.relationship.points);
@@ -637,14 +688,24 @@ window.MBFSoul = (() => {
     const palette = {
       new: '#78d3ff', close: '#72ddff', best: '#91e6d0', family: '#ffd68a', legacy: '#d7b6ff', soul: '#fff1a8'
     };
-    const moodShift = { sleepy:'#b8b7ff', excited:'#ffd36f', lonely:'#9bc9ff', thinking:'#9be0d2', happy:palette[tier], calm:palette[tier] };
+    const form = chooseForm({ tier, mood, rhythm: rhythmName, season: seasonName });
+    const moodShift = { sleepy:'#b8b7ff', excited:'#ffd36f', lonely:'#9bc9ff', thinking:'#9be0d2', happy:(form.color || palette[tier]), calm:(form.color || palette[tier]) };
     data.friend.appearance = {
       ...(data.friend.appearance || {}),
-      color: moodShift[mood] || palette[tier],
+      id: form.id,
+      name: form.name,
+      type: form.type,
+      form: form.id,
+      motif: form.motif,
+      color: moodShift[mood] || form.color || palette[tier],
       mood, relationshipTier: tier, lifeRhythm: rhythmName, season: seasonName,
       soulName: tierLabel(tier),
       energy: data.soul.energy.value
     };
+    if (!data.friend.appearanceHistory.some(item => item.id === form.id)) {
+      data.friend.appearanceHistory.unshift({ id: form.id, name: form.name, type: form.type, motif: form.motif, unlockedDate: new Date().toISOString() });
+      data.friend.appearanceHistory = data.friend.appearanceHistory.slice(0, 12);
+    }
     return data;
   }
   function onTouch(data) {
@@ -1129,8 +1190,9 @@ window.MBFAppearance = (() => {
   }
   function renderFriendShape(appearance, extraClass = '') {
     return `
-      <div class="appearance-stage ${esc(extraClass)} relationship-${esc(appearance.relationshipTier || 'new')}" style="--appearance-color:${esc(appearance.color || '#78d3ff')}">
+      <div class="appearance-stage ${esc(extraClass)} relationship-${esc(appearance.relationshipTier || 'new')} form-${esc(appearance.id || 'light-drop')}" style="--appearance-color:${esc(appearance.color || '#78d3ff')}">
         <div class="light-drop" role="button" tabindex="0" aria-label="${esc(appearance.name || 'フレンド')}">
+          <span class="form-motif">${esc(appearance.motif || '')}</span>
           <span class="drop-core"></span>
           <span class="drop-wave wave-one"></span>
           <span class="drop-wave wave-two"></span>
@@ -1165,8 +1227,8 @@ window.MBFAppearance = (() => {
             <ul>${history.map(item => `<li>${iconFor(item.type)} ${esc(item.name || '光のしずく')}</li>`).join('')}</ul>
           </div>
           <div class="appearance-future">
-            <h3>これから選べる姿</h3>
-            <div class="future-forms">☀️ 光　🌊 流体　🍃 風　🌱 木　🐶 動物　🤖 ロボット　✨ 自由な姿</div>
+            <h3>出会えるかもしれない姿</h3>
+            <div class="future-forms">☀️ 光　🌊 波　🌱 芽　🌸 風　❄️ 雪　🐶 動物　🤖 ロボット　✨ Harmony</div>
           </div>
         </article>
         <div class="appearance-actions">
@@ -1178,6 +1240,18 @@ window.MBFAppearance = (() => {
     document.getElementById('appearanceHome').addEventListener('click', () => MBFHome.render(data));
     document.getElementById('appearanceMemory').addEventListener('click', () => MBFMemory.render(data, 'appearance-first'));
   }
+  function renderIdentityPanel(data) {
+    const identity = data.friend?.identity || {};
+    const core = (identity.core || ['やさしい', '聞き上手']).slice(0, 4).map(item => `<span>${esc(item)}</span>`).join('');
+    const motifs = (identity.motifs || ['光','波','芽']).map(item => `<span>${esc(item)}</span>`).join('');
+    return `<div class="identity-panel">
+      <h3>Friend's Identity</h3>
+      <p>どんな姿でも残る、フレンドらしさ。</p>
+      <div class="identity-tags">${core}</div>
+      <div class="identity-motifs">${motifs}</div>
+    </div>`;
+  }
+
   function renderSoulPanel(data) {
     const soul = MBFSoul.viewModel(data);
     return `<div class="soul-panel">
@@ -1254,7 +1328,7 @@ window.MBFMemory = (() => {
 })();
 (() => {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./service-worker.js?v=2.5.0').then(reg => reg.update()).catch(() => {});
+    navigator.serviceWorker.register('./service-worker.js?v=2.7.0').then(reg => reg.update()).catch(() => {});
   }
 
   let data = MBFStorage.load();
