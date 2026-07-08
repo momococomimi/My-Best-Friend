@@ -214,15 +214,13 @@ button { -webkit-tap-highlight-color: transparent; }
 .appearance-stage::before {
   content:"";
   position:absolute;
-  width: 88%;
-  height: 88%;
+  width: 82%;
+  height: 82%;
   border-radius: 50%;
-  background:
-    radial-gradient(circle at 50% 45%, rgba(255,255,255,.65), transparent 28%),
-    radial-gradient(circle, color-mix(in srgb, var(--appearance-color) 42%, transparent), transparent 68%);
-  filter: blur(8px);
-  opacity: .9;
-  animation: auraBreathe 4.8s ease-in-out infinite;
+  background: radial-gradient(circle, rgba(126, 211, 255, .18) 0%, rgba(126, 211, 255, .10) 42%, rgba(255,255,255,0) 72%);
+  border: 2px solid rgba(126, 211, 255, .18);
+  opacity: .72;
+  animation: auraBreathe 5.2s ease-in-out infinite;
 }
 .light-drop {
   position: relative;
@@ -240,7 +238,6 @@ button { -webkit-tap-highlight-color: transparent; }
   inset: 28%;
   border-radius: 50%;
   background: rgba(255,255,255,.58);
-  filter: blur(12px);
   animation: corePulse 3.5s ease-in-out infinite;
 }
 .drop-wave {
@@ -1918,3 +1915,17 @@ body[data-screen="appearance-wrap"] .screen {
 }
 .identity-motifs { margin-top: 8px; }
 .identity-motifs span { background: rgba(255, 242, 190, .55); }
+
+
+/* v2.8.1 Silent Identity */
+.identity-panel-simple p {
+  margin-bottom: 0;
+  font-size: clamp(14px, 3.6vw, 17px);
+  line-height: 1.75;
+  color: #456a7c;
+}
+.identity-panel-simple .identity-tags,
+.identity-panel-simple .identity-motifs,
+.identity-tags,
+.identity-motifs { display: none !important; }
+.appearance-stage::after { display: none !important; }

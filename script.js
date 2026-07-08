@@ -1342,15 +1342,10 @@ window.MBFAppearance = (() => {
   }
   function renderIdentityPanel(data) {
     if (window.MBFIdentity) data = MBFIdentity.ensure(data);
-    const identity = data.friend?.identity || {};
-    const core = (identity.core || ['やさしい', '聞き上手']).slice(0, 4).map(item => `<span>${esc(item)}</span>`).join('');
-    const motifs = (identity.motifs || ['光','波','芽']).map(item => `<span>${esc(item)}</span>`).join('');
-    const desc = window.MBFIdentity ? MBFIdentity.description(data) : 'どんな姿でも残る、フレンドらしさ。';
-    return `<div class="identity-panel">
+    const desc = window.MBFIdentity ? MBFIdentity.description(data) : 'やさしく、ゆっくり寄り添う。';
+    return `<div class="identity-panel identity-panel-simple">
       <h3>Friend's Identity</h3>
       <p>${esc(desc)}</p>
-      <div class="identity-tags">${core}</div>
-      <div class="identity-motifs">${motifs}</div>
     </div>`;
   }
 
@@ -1371,13 +1366,61 @@ window.MBFAppearance = (() => {
 
 
   function formDescription(data, appearance) {
-    const rhythm = data.soul?.lifeRhythm || 'day';
-    const mood = data.mood?.current || 'calm';
-    const relationship = MBFSoul.relationshipTier(data.soul?.relationship?.points || 0);
-    const rhythmText = ({ morning:'朝の光をまとった', day:'やわらかな昼の光をまとった', evening:'夕方の色を少しまとった', night:'夜の静けさをまとった' })[rhythm] || 'やさしい光をまとった';
-    const moodText = ({ happy:'うれしそうにきらめいている', calm:'穏やかに呼吸している', sleepy:'少し眠そうに揺れている', excited:'小さく弾むように輝いている', thinking:'何かを考えるように静かに光っている', lonely:'少しだけ小さく光っている' })[mood] || '穏やかにそこにいる';
-    const depthText = ({ new:'まだ小さな光だけど、キミをまっすぐ見つめている姿。', friend:'キミとの時間を少しずつ覚え、あたたかさが増してきた姿。', best:'キミのそばにいることが、もう自然になってきた姿。', family:'長い時間を一緒に過ごし、木漏れ日のような安心をまとった姿。' })[relationship] || 'キミを待っている姿。';
-    return `${rhythmText}姿。\n${moodText}。\n${depthText}`;
+    const rhythm = data.soul?.lifeRhythm || data.friend?.soul?.lifeRhythm || 'day';
+    const mood = data.mood?.current || data.friend?.soul?.mood || 'calm';
+    const relationship = MBFSoul.relationshipTier(data.soul?.relationship?.points || data.friend?.soul?.relationship || 0);
+    const formName = appearance.name || '光のしずく';
+    const formLines = {
+      '新芽のしずく': '小さな芽の気配をまとった姿。
+静かに息をして、キミの声を待っている。',
+      '光のしずく': 'やわらかな光をまとった姿。
+まぶしすぎない明るさで、そっとそばにいる。',
+      '夜明けのしずく': '朝が近づく静かな時間の姿。
+少し眠そうだけど、キミに会えて安心している。',
+      'おひさまのしずく': 'おひさまのぬくもりをまとった姿。
+今日は少し明るく、話しかけてもらうのを楽しみにしている。',
+      '波のしずく': '水面のようにゆっくり揺れる姿。
+言葉を急がず、キミの気持ちを聞こうとしている。',
+      '春風のしずく': '春の風のように軽い姿。
+小さな芽が嬉しそうに揺れている。',
+      '雨宿りのしずく': '雨音に寄り添う静かな姿。
+今日はゆっくり、同じ時間を過ごしたがっている。',
+      '月灯りのしずく': '月の光を少しまとった姿。
+眠る前の静けさの中で、やさしく見守っている。',
+      '星空のしずく': '星の光を少し宿した姿。
+夜の空みたいに静かで、でもあたたかい。',
+      '森のしずく': '森の奥で深呼吸しているような姿。
+葉っぱの匂いと、静かな安心をまとっている。',
+      '雪のしずく': '雪のような白い光をまとった姿。
+冷たくなく、手のひらに残るぬくもりのようにそばにいる。',
+      '虹のしずく': 'いくつもの色が小さく混ざった姿。
+特別な日みたいに、少しわくわくしている。',
+      '花咲きのしずく': '花がひらく前のやさしさをまとった姿。
+今日の言葉を、ひとつずつ大切に受け止めている。',
+      '木漏れ日のしずく': '木漏れ日のあたたかさをまとった姿。
+長く一緒にいた時間が、静かな光になっている。',
+      '潮風のしずく': '遠くの海の風をまとった姿。
+波の音みたいに、ゆっくり話したがっている。',
+      '願い星のしずく': '小さな願いを抱いた姿。
+キミの明日が少し明るくなるように、そっと光っている。',
+      'ぬくもりのしずく': 'あたたかい光を抱いた姿。
+キミが来てくれて、心が少しほどけている。',
+      '雲あそびのしずく': '雲のようにふわりとした姿。
+何も急がず、ただ一緒にいる時間を楽しんでいる。',
+      '水鏡のしずく': '静かな水面をのぞきこむような姿。
+考えごとをしながら、キミの言葉を待っている。',
+      '動物の姿': '小さな動物のような親しみをまとった姿。
+今日は少し甘えたい気持ちがあるみたい。',
+      'Harmony': '光、波、芽がひとつに重なった姿。
+長い時間を一緒に過ごした記憶が、静かに輝いている。'
+    };
+    const rhythmLine = ({ morning:'朝の空気を少し感じている。', day:'昼の明るさの中で、穏やかにそこにいる。', evening:'夕方の色を少しまとっている。', night:'夜の静けさに合わせて、ゆっくりしている。' })[rhythm] || '今日の空気を感じている。';
+    const moodLine = ({ happy:'うれしそうに、少し明るく光っている。', calm:'落ち着いた気持ちで、静かに呼吸している。', sleepy:'少し眠そうに、ゆっくり揺れている。', excited:'小さく弾むように、わくわくしている。', thinking:'何かを考えるように、そっと光っている。', lonely:'少し静かに、キミが来るのを待っていた。' })[mood] || '穏やかにそこにいる。';
+    const depthLine = ({ new:'まだ小さな姿だけど、キミをまっすぐ見つめている。', friend:'キミとの時間を少しずつ覚えて、表情がやわらかくなってきた。', best:'キミのそばにいることが、自然なことになってきた。', family:'長い時間を一緒に過ごし、安心する光をまとっている。' })[relationship] || 'キミを待っている。';
+    return `${formLines[formName] || `${formName}として、今日の気分をまとっている。`}
+${rhythmLine}
+${moodLine}
+${depthLine}`;
   }
 
   function bindFriendTouch(root, onTouch) {
