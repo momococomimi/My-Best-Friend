@@ -1443,6 +1443,9 @@ window.MBFCare = (() => {
   return { render };
 })();
 
+// v3.4.0 Friend Engine rule:
+// Every screen renders the same data.friend.appearance object.
+// The mood/form classes are derived from that single state, so Home / Form / Message / Voice stay visually consistent.
 window.MBFAppearance = (() => {
   const TYPES = {
     LIGHT: '光', LIQUID: '流体', WIND: '風', TREE: '木', ANIMAL: '動物', ROBOT: 'ロボット', CUSTOM: '自由な姿'
@@ -1455,8 +1458,10 @@ window.MBFAppearance = (() => {
     return ({ LIGHT:'☀️', LIQUID:'🌊', WIND:'🍃', TREE:'🌱', ANIMAL:'🐶', ROBOT:'🤖', CUSTOM:'✨' })[type] || '✨';
   }
   function renderFriendShape(appearance, extraClass = '') {
+    const moodClass = `mood-${esc(appearance.mood || 'calm')}`;
+    const stateClass = `friend-state-${esc(appearance.id || 'light-drop')}`;
     return `
-      <div class="appearance-stage ${esc(extraClass)} relationship-${esc(appearance.relationshipTier || 'new')} form-${esc(appearance.id || 'light-drop')}" style="--appearance-color:${esc(appearance.color || '#78d3ff')}">
+      <div class="appearance-stage ${esc(extraClass)} ${moodClass} ${stateClass} relationship-${esc(appearance.relationshipTier || 'new')} form-${esc(appearance.id || 'light-drop')}" style="--appearance-color:${esc(appearance.color || '#78d3ff')}" data-friend-state="${esc(appearance.id || 'light-drop')}" data-friend-mood="${esc(appearance.mood || 'calm')}">
         <div class="light-drop" role="button" tabindex="0" aria-label="${esc(appearance.name || 'フレンド')}">
           <span class="drop-core"></span>
           <span class="drop-wave wave-one"></span>

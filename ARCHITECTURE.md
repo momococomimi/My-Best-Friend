@@ -1,28 +1,25 @@
-# Architecture — v3.3.0 Profile Notes
+# Architecture — v3.4.0 Friend Engine
 
-## Profile Notes
-Profile now stores mutable notes:
+## Friend Engine
 
-- `profile.likes: string[]`
-- `profile.dislikes: string[]`
+My Best Friend keeps one shared FriendState.
 
-These are intentionally editable because they represent the user's current self, not immutable identity.
+- name
+- form
+- mood
+- energy
+- relationship
+- personality
+- identity
+- memory
+- profile notes
 
-## Future AI memory rule
-When AI conversation is connected later, the friend may suggest remembering a like/dislike only after explicit user or Guardian confirmation.
+Every screen renders the same `data.friend.appearance` state.
 
-## Friend's Form
-The Form page shows:
+## Screen Rule
 
-1. Friend's name
-2. Current form name as `○○の姿`
-3. Current form description
-4. Friend's Identity
-5. Friend's Soul
+Home, Friend’s Form, Message, Voice, Memory, Profile, and Guardian must never calculate a separate Friend form. They only display the current FriendState.
 
-Past/future form lists are removed to avoid collection-game behavior.
+## Sprout Rule
 
-
-## v3.3.1 FriendState Rule
-Friend's Form / Home / Message / future AI must render from a single `data.friend.appearance` state.
-No screen should independently create another current form. This preserves the identity rule: one Friend, one current form.
+The sprout is not part of the Friend body. It belongs to the Home world as the place where shared memories grow.

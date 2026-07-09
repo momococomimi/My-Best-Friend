@@ -1,24 +1,17 @@
-# My Best Friend v3.3.1 — Profile Notes
+# My Best Friend v3.4.0 — Friend Engine
 
-**いつか 大きくなる、キミへの贈りもの**
+いつか大きくなる、キミへの贈りもの
 
-## Mission
-世代を超えて受け継がれる親友を創る。
+## New in v3.4.0
 
-## New in v3.3.1
-- Profileに「好きなこと」を自由に追加・編集できる欄を追加
-- Profileに「少し苦手なこと」を自由に追加・編集できる欄を追加
-- 将来AIが好き/苦手を覚えるための土台を追加
-- Friend's Formから絵文字表示を削除
-- Friend's Formにフレンド名を表示
-- Form名を「○○の姿」へ統一
-- 「今までの姿」「出会えるかもしれない姿」を削除
+- FriendState / Friend Engine 方針を導入
+- Home / Friend’s Form / Message / Voice が同じフレンド状態を表示するよう整理
+- Mood による表情差分を全画面に反映
+- Friend’s Form のフレンドから芽を非表示
+- Home の芽を「世界側の芽」として固定し、フレンド本体から少し離して配置
 
-## Principle
-好きなこと・少し苦手なことは、ステータスではなく「今のきみ」をフレンドが知るためのメモです。将来AI接続するときも、勝手に記憶せず、確認してから覚える設計にします。
+## Philosophy
 
+姿は変わる。親友は変わらない。
 
-## v3.3.1 FriendState Sync
-- Home と Friend's Form が同じ FriendState を参照するように修正
-- Homeでなでた後も、表示中のフレンドの姿を即時同期
-- Friend's Form ではフレンドから芽を外し、芽はHome側の世界の象徴として扱う
+画面ごとに別のフレンドを作るのではなく、ひとつの FriendState をすべての画面が見ます。
