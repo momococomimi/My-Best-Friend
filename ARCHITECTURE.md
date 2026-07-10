@@ -1,37 +1,18 @@
-# Architecture — v3.4.3 Friend Engine
+# Architecture — v3.5.0 Friend Design Sprint 1
 
-## Friend Engine
+## Single Friend State
 
-My Best Friend keeps one shared FriendState.
+Home / Friend's Form / Message / Voice / Memory / Profile / Guardian は、同じ保存済みFriendStateを参照します。
 
-- name
-- form
-- mood
-- energy
-- relationship
-- personality
-- identity
-- memory
-- profile notes
+## Presence Layer
 
-Every screen renders the same `data.friend.appearance` state.
+- Continuous breathing: CSS animation
+- Natural blink: irregular JavaScript timer
+- Quiet glance: irregular JavaScript timer
+- Idle motions: MBFLiving state machine
+- Living sky: slow CSS animation
+- World sprout: Home-only world object
 
-## Screen Rule
+## Accessibility
 
-Home, Friend’s Form, Message, Voice, Memory, Profile, and Guardian must never calculate a separate Friend form. They only display the current FriendState.
-
-## Sprout Rule
-
-The sprout is not part of the Friend body. It belongs to the Home world as the place where shared memories grow.
-
-
-## v3.4.3 Sprout Ground
-Home sprout is rendered as a world-side CSS plant. It is larger, separated from the Friend body, and animated independently.
-
-
-## v3.4.3 Friend Engine Persistence
-All primary screens must read the same saved FriendState before rendering. Screen transitions must not reset mood, form, color, expression, energy, or relationship. Touch interactions update FriendState first; views render from that state.
-
-
-## v3.4.3 Layout Balance
-Friend's Form uses the same FriendState as Home, but the portrait is rendered at a calmer size. The Home sprout remains a world object, lower and visually grounded, not a body part.
+`prefers-reduced-motion` が有効な場合、呼吸・波紋・雲・芽などの連続アニメーションを停止します。

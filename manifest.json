@@ -1,9 +1,9 @@
 {
   "name": "My Best Friend",
   "short_name": "Best Friend",
-  "start_url": "./",
+  "start_url": "./?v=350",
   "display": "standalone",
   "background_color": "#8edbff",
   "theme_color": "#8edbff",
-  "icons": []
+  "lang": "ja"
 }

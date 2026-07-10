@@ -9,7 +9,7 @@ window.MBFStorage = (() => {
 
   function defaultData() {
     return {
-      version: '3.4.2',
+      version: '3.5.0',
       createdAt: new Date().toISOString(),
       userName: '',
       friendName: '',
@@ -928,6 +928,8 @@ window.MBFSoul = (() => {
 window.MBFLiving = (() => {
   let idleTimer = null;
   let driftTimer = null;
+  let blinkTimer = null;
+  let glanceTimer = null;
   let currentData = null;
 
   const idleStates = [
@@ -941,8 +943,12 @@ window.MBFLiving = (() => {
   function stop() {
     if (idleTimer) clearTimeout(idleTimer);
     if (driftTimer) clearInterval(driftTimer);
+    if (blinkTimer) clearTimeout(blinkTimer);
+    if (glanceTimer) clearTimeout(glanceTimer);
     idleTimer = null;
     driftTimer = null;
+    blinkTimer = null;
+    glanceTimer = null;
   }
 
   function minutesAway(data) {
@@ -997,10 +1003,31 @@ window.MBFLiving = (() => {
       }, 28000 + Math.random() * 26000);
     };
 
-    driftTimer = setInterval(() => {
-      root.classList.toggle('living-breathe');
-    }, 12000);
+    root.classList.add('living-active', 'living-breathe');
 
+    const scheduleBlink = () => {
+      blinkTimer = setTimeout(() => {
+        stage.classList.add('living-natural-blink');
+        setTimeout(() => stage.classList.remove('living-natural-blink'), 520);
+        scheduleBlink();
+      }, 3200 + Math.random() * 7600);
+    };
+
+    const scheduleGlance = () => {
+      glanceTimer = setTimeout(() => {
+        const glance = Math.random() > .5 ? 'living-glance-left' : 'living-glance-right';
+        stage.classList.add(glance);
+        setTimeout(() => stage.classList.remove(glance), 2200);
+        scheduleGlance();
+      }, 12000 + Math.random() * 18000);
+    };
+
+    driftTimer = setInterval(() => {
+      root.classList.add('living-breathe');
+    }, 15000);
+
+    scheduleBlink();
+    scheduleGlance();
     schedule();
   }
 
