@@ -1053,6 +1053,39 @@ window.MBFLiving = (() => {
   return { start, stop, greeting, markOpen, markClose };
 })();
 
+window.MBFNav = (() => {
+  function markup(active = '') {
+    const item = (id, label, symbol) => `
+      <button class="quiet-dock-item ${active === id ? 'is-current' : ''} ${id === 'home' ? 'quiet-home-item' : ''}" data-quiet-nav="${id}" type="button" ${active === id ? 'aria-current="page"' : ''}>
+        <span class="quiet-dock-symbol" aria-hidden="true">${symbol}</span>
+        <span>${label}</span>
+      </button>`;
+    return `<nav class="quiet-bottom-dock" aria-label="メインナビゲーション">
+      ${item('message', 'Message', '⌁')}
+      ${item('profile', 'Profile', '○')}
+      ${item('home', 'Home', '⌂')}
+      ${item('memory', 'Memory', '▤')}
+      ${item('guardian', 'Guardian', '◇')}
+    </nav>`;
+  }
+
+  function bind(data) {
+    document.querySelectorAll('[data-quiet-nav]').forEach(button => {
+      button.addEventListener('click', () => {
+        const latest = MBFStorage.load();
+        const target = button.dataset.quietNav;
+        if (target === 'message') MBFMessage.render(latest);
+        if (target === 'profile') MBFProfile.renderBook(latest);
+        if (target === 'home') MBFHome.render(latest);
+        if (target === 'memory') MBFMemory.render(latest);
+        if (target === 'guardian') MBFGuardian.open(latest);
+      });
+    });
+  }
+
+  return { markup, bind };
+})();
+
 window.MBFHome = (() => {
   let commentTimer = null;
 
@@ -1067,50 +1100,15 @@ window.MBFHome = (() => {
     const comments = MBFSoul.comments(data);
     if (livingGreeting) comments.unshift(livingGreeting);
     MBFUi.set(`
-      <section class="home-scene">
+      <section class="home-scene quiet-home-scene">
         ${MBFAppearance.renderFriendShape(MBFAppearance.current(data), `home-appearance mood-${mood}`)}
         <div class="home-message card" aria-live="polite">
           <div id="homeComment">${escapeHtml(comments[0])}</div>
         </div>
-        <nav class="home-bottom-dock" aria-label="メインメニュー">
-          <button class="dock-item is-current" type="button" aria-current="page" aria-label="ホーム">
-            <span class="dock-icon" aria-hidden="true">⌂</span><span>Home</span>
-          </button>
-          <button class="dock-item" id="talkDockBtn" type="button" aria-label="話す">
-            <span class="dock-icon" aria-hidden="true">◌</span><span>Talk</span>
-          </button>
-          <button class="dock-item" id="memoryBtn" type="button" aria-label="思い出">
-            <span class="dock-icon" aria-hidden="true">▤</span><span>Memory</span>
-          </button>
-          <button class="dock-item" id="profileBtn" type="button" aria-label="プロフィール">
-            <span class="dock-icon" aria-hidden="true">◯</span><span>Profile</span>
-          </button>
-          <button class="dock-item" id="moreDockBtn" type="button" aria-label="その他">
-            <span class="dock-icon" aria-hidden="true">•••</span><span>More</span>
-          </button>
-        </nav>
-        <div class="home-sheet" id="talkSheet" hidden>
-          <button class="sheet-backdrop" type="button" data-close-sheet aria-label="閉じる"></button>
-          <div class="sheet-card" role="dialog" aria-modal="true" aria-label="話し方を選ぶ">
-            <div class="sheet-handle" aria-hidden="true"></div>
-            <h2>どうやって話す？</h2>
-            <div class="sheet-actions">
-              <button class="sheet-action voice" id="voiceBtn" type="button"><span>🎙</span><strong>Voice</strong><small>声ではなす</small></button>
-              <button class="sheet-action message" id="messageBtn" type="button"><span>💬</span><strong>Message</strong><small>文字ではなす</small></button>
-            </div>
-          </div>
-        </div>
-        <div class="home-sheet" id="moreSheet" hidden>
-          <button class="sheet-backdrop" type="button" data-close-sheet aria-label="閉じる"></button>
-          <div class="sheet-card" role="dialog" aria-modal="true" aria-label="その他のメニュー">
-            <div class="sheet-handle" aria-hidden="true"></div>
-            <h2>ふわもこのこと</h2>
-            <div class="sheet-actions sheet-actions-three">
-              <button class="sheet-action appearance" id="appearanceBtn" type="button"><span>✨</span><strong>Form</strong><small>フレンドの姿</small></button>
-              <button class="sheet-action guardian" id="guardianBtn" type="button"><span>🛡</span><strong>Guardian</strong><small>見守り設定</small></button>
-            </div>
-          </div>
-        </div>
+        <button class="floating-voice-button" id="voiceBtn" type="button" aria-label="Voice">
+          <span aria-hidden="true">⌁</span>
+        </button>
+        ${MBFNav.markup('home')}
       </section>
     `);
     MBFAppearance.bindFriendTouch(document.querySelector('.home-appearance'), () => {
@@ -1120,25 +1118,8 @@ window.MBFHome = (() => {
     });
     startComments(comments);
     if (window.MBFLiving) MBFLiving.start(document.querySelector('.home-appearance'), setHomeComment, data);
-    const openSheet = (id) => {
-      document.querySelectorAll('.home-sheet').forEach(sheet => { sheet.hidden = true; });
-      const sheet = document.getElementById(id);
-      if (sheet) sheet.hidden = false;
-      document.body.classList.toggle('sheet-open', Boolean(sheet));
-    };
-    const closeSheets = () => {
-      document.querySelectorAll('.home-sheet').forEach(sheet => { sheet.hidden = true; });
-      document.body.classList.remove('sheet-open');
-    };
-    document.getElementById('talkDockBtn').addEventListener('click', () => openSheet('talkSheet'));
-    document.getElementById('moreDockBtn').addEventListener('click', () => openSheet('moreSheet'));
-    document.querySelectorAll('[data-close-sheet]').forEach(btn => btn.addEventListener('click', closeSheets));
-    document.getElementById('memoryBtn').addEventListener('click', () => MBFMemory.render(MBFStorage.load()));
-    document.getElementById('profileBtn').addEventListener('click', () => MBFProfile.renderBook(MBFStorage.load()));
-    document.getElementById('appearanceBtn').addEventListener('click', () => MBFAppearance.render(MBFStorage.load()));
-    document.getElementById('guardianBtn').addEventListener('click', () => MBFGuardian.open(MBFStorage.load()));
     document.getElementById('voiceBtn').addEventListener('click', () => MBFVoice.render(MBFStorage.load()));
-    document.getElementById('messageBtn').addEventListener('click', () => MBFMessage.render(MBFStorage.load()));
+    MBFNav.bind(data);
   }
 
   function syncHomeFriend(data) {
@@ -1177,7 +1158,6 @@ window.MBFHome = (() => {
   function escapeHtml(str) { return String(str || '').replace(/[&<>']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;'}[c])); }
   return { render };
 })();
-
 
 window.MBFVoice = (() => {
   function render(data) {
@@ -1322,25 +1302,52 @@ window.MBFProfile = (() => {
   }
 
   function renderBook(data) {
+    data = MBFStorage.load();
+    if (window.MBFSoul) data = MBFSoul.applyAppearance(data);
+    MBFStorage.save(data);
+    const appearance = MBFAppearance.current(data);
+    const soul = MBFSoul.viewModel(data);
+    const identity = window.MBFIdentity ? MBFIdentity.description(data) : 'やさしく、ゆっくり寄り添う。';
     MBFUi.set(`
-      <section class="profile-wrap">
-        <article class="profile-book profile-notes-book">
+      <section class="profile-wrap quiet-profile-wrap">
+        <article class="profile-book profile-notes-book quiet-profile-book">
           <div class="chapter-label">Profile</div>
-          <h2 class="profile-title">ぼくが覚えている、<br>きみのこと。</h2>
-          <dl class="profile-list">
-            <div><dt>名前</dt><dd>${esc(data.userName)}</dd></div>
-            <div><dt>誕生日</dt><dd>${esc(formatDate(data.profile.birthday))}</dd></div>
-            <div><dt>性別</dt><dd>${esc(genderLabel(data.profile.gender))}</dd></div>
-            <div><dt>親友になった日</dt><dd>${esc(metDate(data))}</dd></div>
-          </dl>
-          ${renderNotesSection('好きなこと', 'likes', data.profile.likes)}
-          ${renderNotesSection('少し苦手なこと', 'dislikes', data.profile.dislikes)}
+
+          <section class="profile-friend-section">
+            <h2>Friend</h2>
+            ${MBFAppearance.renderFriendShape(appearance, 'profile-friend-portrait')}
+            <div class="profile-friend-name">${esc(data.friendName || 'フレンド')}</div>
+            <dl class="friend-status-list">
+              <button class="friend-status-row is-link" id="profileFormLink" type="button">
+                <dt>Form</dt><dd>${esc(appearance.name || '光のしずく')}</dd><span aria-hidden="true">›</span>
+              </button>
+              <div class="friend-status-row"><dt>Identity</dt><dd>${esc(identity)}</dd></div>
+              <div class="friend-status-row"><dt>Relationship</dt><dd>${esc(soul.relationshipLabel)}</dd></div>
+              <div class="friend-status-row"><dt>Energy</dt><dd>${Math.round(soul.energy)}%</dd></div>
+              <div class="friend-status-row"><dt>Mood</dt><dd>${esc(soul.mood)}</dd></div>
+              <div class="friend-status-row"><dt>Life Rhythm</dt><dd>${esc(soul.rhythm)}</dd></div>
+              <div class="friend-status-row"><dt>Season</dt><dd>${esc(soul.season)}</dd></div>
+              <div class="friend-status-row"><dt>Weather</dt><dd>—</dd></div>
+              <div class="friend-status-row"><dt>Promise</dt><dd>Always with you</dd></div>
+            </dl>
+          </section>
+
+          <section class="profile-you-section">
+            <h2>きみのこと</h2>
+            <dl class="profile-list quiet-you-list">
+              <div><dt>名前</dt><dd>${esc(data.userName)}</dd></div>
+              <div><dt>誕生日</dt><dd>${esc(formatDate(data.profile.birthday))}</dd></div>
+              <div><dt>性別</dt><dd>${esc(genderLabel(data.profile.gender))}</dd></div>
+              <div><dt>親友になった日</dt><dd>${esc(metDate(data))}</dd></div>
+            </dl>
+            ${renderNotesSection('好きなこと', 'likes', data.profile.likes)}
+            ${renderNotesSection('少し苦手なこと', 'dislikes', data.profile.dislikes)}
+          </section>
         </article>
-        <div class="profile-actions profile-actions-single">
-          <button id="profileBack" class="secondary-button">ホームへ戻る</button>
-        </div>
+        ${MBFNav.markup('profile')}
       </section>`);
-    document.getElementById('profileBack').addEventListener('click', () => MBFHome.render(data));
+    document.getElementById('profileFormLink').addEventListener('click', () => MBFAppearance.render(MBFStorage.load()));
+    MBFNav.bind(data);
     bindNoteButtons(data);
   }
 

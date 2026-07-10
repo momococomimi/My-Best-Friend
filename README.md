@@ -1,4 +1,4 @@
-# My Best Friend v3.7.0
+# My Best Friend v3.7.1
 
 ## Friend Design Sprint 2
 
@@ -11,3 +11,11 @@
 - v3.6.1までのFriendState、呼吸、まばたき、芽、背景動作を維持
 
 GitHub Pages確認URL: `https://momococomimi.github.io/my-best-friend/?v=370`
+
+
+## v3.7.1 Quiet Navigation & Profile
+- Compact five-item navigation: Message / Profile / Home / Memory / Guardian
+- Home is visually emphasized at the center
+- Voice microphone is fixed above the lower-right navigation
+- Profile is reorganized into Friend and きみのこと
+- Friend Form opens from the Form row inside Profile
