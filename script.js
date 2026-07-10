@@ -1054,18 +1054,29 @@ window.MBFLiving = (() => {
 })();
 
 window.MBFNav = (() => {
+  function icon(id) {
+    const common = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"';
+    const paths = {
+      profile: '<circle cx="12" cy="8" r="3.2"></circle><path d="M5.7 20c.7-4 3-6 6.3-6s5.6 2 6.3 6"></path>',
+      message: '<path d="M4 5.8A3.8 3.8 0 0 1 7.8 2h8.4A3.8 3.8 0 0 1 20 5.8v5.4a3.8 3.8 0 0 1-3.8 3.8H10l-4.8 4v-4.4A3.7 3.7 0 0 1 4 11.8z"></path><path d="M8 8.5h.01M12 8.5h.01M16 8.5h.01"></path>',
+      voice: '<rect x="8" y="2.8" width="8" height="12.2" rx="4"></rect><path d="M5.5 11.5v.8a6.5 6.5 0 0 0 13 0v-.8M12 18.8v2.4M8.5 21.2h7"></path>',
+      memory: '<path d="M4 5.2A3.2 3.2 0 0 1 7.2 2H11a3 3 0 0 1 3 3v15a3.3 3.3 0 0 0-3-2H7.2A3.2 3.2 0 0 0 4 21.2z"></path><path d="M20 5.2A3.2 3.2 0 0 0 16.8 2H14v18a3.3 3.3 0 0 1 3-2h-.2a3.2 3.2 0 0 1 3.2 3.2z"></path>',
+      guardian: '<path d="M12 2.5 19 5v5.4c0 4.7-2.8 8.5-7 11.1-4.2-2.6-7-6.4-7-11.1V5z"></path><path d="m9.5 12 1.6 1.6 3.5-4"></path>'
+    };
+    return `<svg class="quiet-dock-svg" ${common}>${paths[id] || ''}</svg>`;
+  }
   function markup(active = '') {
-    const item = (id, label, symbol) => `
-      <button class="quiet-dock-item ${active === id ? 'is-current' : ''} ${id === 'home' ? 'quiet-home-item' : ''}" data-quiet-nav="${id}" type="button" ${active === id ? 'aria-current="page"' : ''}>
-        <span class="quiet-dock-symbol" aria-hidden="true">${symbol}</span>
-        <span>${label}</span>
+    const item = (id, label) => `
+      <button class="quiet-dock-item ${active === id ? 'is-current' : ''} ${id === 'voice' ? 'quiet-voice-item' : ''}" data-quiet-nav="${id}" type="button" ${active === id ? 'aria-current="page"' : ''} aria-label="${label}">
+        <span class="quiet-dock-symbol">${icon(id)}</span>
+        <span class="quiet-dock-label">${label}</span>
       </button>`;
     return `<nav class="quiet-bottom-dock" aria-label="メインナビゲーション">
-      ${item('message', 'Message', '⌁')}
-      ${item('profile', 'Profile', '○')}
-      ${item('home', 'Home', '⌂')}
-      ${item('memory', 'Memory', '▤')}
-      ${item('guardian', 'Guardian', '◇')}
+      ${item('profile', 'Profile')}
+      ${item('message', 'Message')}
+      ${item('voice', 'Voice')}
+      ${item('memory', 'Memory')}
+      ${item('guardian', 'Guardian')}
     </nav>`;
   }
 
@@ -1076,7 +1087,11 @@ window.MBFNav = (() => {
         const target = button.dataset.quietNav;
         if (target === 'message') MBFMessage.render(latest);
         if (target === 'profile') MBFProfile.renderBook(latest);
-        if (target === 'home') MBFHome.render(latest);
+        if (target === 'voice') {
+          const onHome = Boolean(document.querySelector('.home-scene'));
+          if (!onHome) MBFHome.render(latest);
+          window.setTimeout(() => MBFVoice.toggleFromHome(), onHome ? 0 : 80);
+        }
         if (target === 'memory') MBFMemory.render(latest);
         if (target === 'guardian') MBFGuardian.open(latest);
       });
@@ -1101,17 +1116,14 @@ window.MBFHome = (() => {
     if (livingGreeting) comments.unshift(livingGreeting);
     MBFUi.set(`
       <section class="home-scene quiet-home-scene">
-        ${MBFAppearance.renderFriendShape(MBFAppearance.current(data), `home-appearance mood-${mood}`)}
+        <div class="home-world-stage">
+          ${MBFAppearance.renderFriendShape(MBFAppearance.current(data), `home-appearance mood-${mood}`)}
+          <span class="friend-ground-shadow" aria-hidden="true"></span>
+          <span class="grounded-sprout" aria-hidden="true"><span class="grounded-stem"></span><span class="grounded-leaf leaf-left"></span><span class="grounded-leaf leaf-right"></span><span class="ground-soil"></span></span>
+        </div>
         <div class="home-message card" aria-live="polite">
           <div id="homeComment">${escapeHtml(comments[0])}</div>
         </div>
-        <button class="floating-voice-button" id="voiceBtn" type="button" aria-label="マイクで話す" aria-pressed="false">
-          <svg class="voice-mic-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <rect x="8" y="2.5" width="8" height="13" rx="4"></rect>
-            <path d="M5.5 11.5v.8a6.5 6.5 0 0 0 13 0v-.8"></path>
-            <path d="M12 18.8v2.7M8.5 21.5h7"></path>
-          </svg>
-        </button>
         ${MBFNav.markup('home')}
       </section>
     `);
@@ -1122,7 +1134,6 @@ window.MBFHome = (() => {
     });
     startComments(comments);
     if (window.MBFLiving) MBFLiving.start(document.querySelector('.home-appearance'), setHomeComment, data);
-    document.getElementById('voiceBtn').addEventListener('click', () => MBFVoice.toggleFromHome());
     MBFNav.bind(data);
   }
 
@@ -1167,7 +1178,7 @@ window.MBFVoice = (() => {
   let recognition = null;
   let listening = false;
 
-  function button() { return document.getElementById('voiceBtn'); }
+  function button() { return document.querySelector('[data-quiet-nav="voice"]'); }
   function setButtonState(active) {
     listening = active;
     const btn = button();
@@ -1279,10 +1290,10 @@ window.MBFMessage = (() => {
             <button id="sendMessage" class="send-button">送る</button>
           </div>
         </article>
-        <div class="talk-actions"><button id="messageHome" class="secondary-button">ホームへ戻る</button></div>
+        ${MBFNav.markup('message')}
       </section>
     `);
-    document.getElementById('messageHome').addEventListener('click', () => MBFHome.render(data));
+    MBFNav.bind(data);
     document.getElementById('sendMessage').addEventListener('click', () => send(data));
     document.getElementById('messageInput').addEventListener('keydown', ev => { if (ev.key === 'Enter') send(data); });
   }
@@ -1559,10 +1570,10 @@ window.MBFGuardian = (() => {
           <input id="confirmGuardianPass" class="guardian-input" type="password" minlength="4" maxlength="64" autocomplete="new-password" />
           <p class="form-error" id="guardianError"></p>
           <button id="saveGuardianPass" class="primary-button">パスワードを保存</button>
-          <button id="guardianCancel" class="secondary-button guardian-back-button">ホームへ戻る</button>
         </div>
+        ${MBFNav.markup('guardian')}
       </section>`);
-    document.getElementById('guardianCancel').addEventListener('click', () => MBFHome.render(data));
+    MBFNav.bind(data);
     document.getElementById('saveGuardianPass').addEventListener('click', async () => {
       const a=document.getElementById('newGuardianPass').value;
       const b=document.getElementById('confirmGuardianPass').value;
@@ -1581,9 +1592,8 @@ window.MBFGuardian = (() => {
         <input id="guardianPass" class="guardian-input" type="password" autocomplete="current-password" />
         <p class="form-error" id="guardianError"></p>
         <button id="guardianLogin" class="primary-button">入る</button>
-        <button id="guardianCancel" class="secondary-button guardian-back-button">ホームへ戻る</button>
-      </div></section>`);
-    document.getElementById('guardianCancel').addEventListener('click', () => MBFHome.render(data));
+      </div>${MBFNav.markup('guardian')}</section>`);
+    MBFNav.bind(data);
     document.getElementById('guardianLogin').addEventListener('click', async () => {
       const ok=(await hash(document.getElementById('guardianPass').value))===data.guardian.passwordHash;
       if (!ok) { document.getElementById('guardianError').textContent='パスワードが違います。'; return; }
@@ -1606,8 +1616,7 @@ window.MBFGuardian = (() => {
           <button id="saveGuardianProfile" class="primary-button">保存</button>
         </div>
         <div class="future-panel"><strong>Legacy / Guardian継承 / Appearance</strong><br><span>未来の更新で、この場所から大切に受け継ぎます。</span></div>
-        <button id="guardianDone" class="secondary-button guardian-back-button">ホームへ戻る</button>
-      </div></section>`);
+      </div>${MBFNav.markup('guardian')}</section>`);
     document.getElementById('editGender').value=data.profile.gender || 'secret';
     document.getElementById('saveGuardianProfile').addEventListener('click', () => {
       const previousName = data.userName;
@@ -1626,7 +1635,7 @@ window.MBFGuardian = (() => {
       }
       MBFStorage.save(data); MBFUi.sparkleBurst(10);
     });
-    document.getElementById('guardianDone').addEventListener('click', () => MBFHome.render(data));
+    MBFNav.bind(data);
   }
   return { open };
 })();
@@ -1700,7 +1709,6 @@ window.MBFAppearance = (() => {
           <span class="drop-cheek cheek-right"></span>
           <span class="drop-mouth"></span>
         </div>
-        <span class="memory-sprout" aria-hidden="true"><span class="sprout-stem"></span><span class="sprout-leaf sprout-left"></span><span class="sprout-leaf sprout-right"></span></span>
       </div>`;
   }
   function render(data) {
@@ -1727,11 +1735,11 @@ window.MBFAppearance = (() => {
         </article>
         <div class="appearance-actions">
           <button id="appearanceMemory" class="primary-button">この姿のMemoryを見る</button>
-          <button id="appearanceHome" class="secondary-button">ホームへ戻る</button>
         </div>
+        ${MBFNav.markup('profile')}
       </section>
     `);
-    document.getElementById('appearanceHome').addEventListener('click', () => MBFHome.render(MBFStorage.load()));
+    MBFNav.bind(data);
     document.getElementById('appearanceMemory').addEventListener('click', () => MBFMemory.render(MBFStorage.load(), 'appearance-first'));
   }
   function renderIdentityPanel(data) {
@@ -1870,19 +1878,17 @@ window.MBFMemory = (() => {
           <div class="memory-closing">${escapeHtml(memory.closing || 'このページは\nぼくたちの宝物。').replace(/\n/g, '<br>')}</div>
           <div class="memory-glow">✦ ♡ ✦</div>
         </article>
-        <div class="memory-actions">
-          <button class="secondary-button" id="backHome">ホームへ戻る</button>
-        </div>
+        ${MBFNav.markup('memory')}
       </section>
     `);
-    document.getElementById('backHome').addEventListener('click', () => MBFHome.render(data));
+    MBFNav.bind(data);
   }
   function escapeHtml(str) { return String(str || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
   return { render };
 })();
 (() => {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./service-worker.js?v=3.7.2').then(reg => reg.update()).catch(() => {});
+    navigator.serviceWorker.register('./service-worker.js?v=3.8.0').then(reg => reg.update()).catch(() => {});
   }
 
   let data = MBFStorage.load();

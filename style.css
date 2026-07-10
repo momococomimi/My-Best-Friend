@@ -3709,3 +3709,289 @@ body[data-screen="profile-wrap"] .screen {
     bottom: calc(69px + env(safe-area-inset-bottom)) !important;
   }
 }
+
+/* =========================================================
+   v3.8.0 — Floating Friend / Grounded Sprout / Global Dock
+   ========================================================= */
+:root {
+  --dock-height: 76px;
+  --dock-gap: 14px;
+  --dock-bottom: calc(10px + env(safe-area-inset-bottom));
+  --dock-space: calc(var(--dock-height) + 34px + env(safe-area-inset-bottom));
+}
+
+/* Every main destination leaves room for the persistent dock. */
+.home-scene,
+.accordion-profile-wrap,
+.message-wrap,
+.memory-wrap,
+.guardian-wrap,
+.appearance-wrap {
+  padding-bottom: var(--dock-space) !important;
+}
+
+.quiet-bottom-dock {
+  position: fixed !important;
+  z-index: 100 !important;
+  left: max(14px, env(safe-area-inset-left)) !important;
+  right: max(14px, env(safe-area-inset-right)) !important;
+  bottom: var(--dock-bottom) !important;
+  height: var(--dock-height) !important;
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  align-items: center !important;
+  gap: 0 !important;
+  padding: 7px 8px !important;
+  border: 1px solid rgba(255,255,255,.72) !important;
+  border-radius: 28px !important;
+  background: rgba(255,255,255,.78) !important;
+  box-shadow: 0 14px 36px rgba(52,79,91,.17) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(1.18) !important;
+  backdrop-filter: blur(20px) saturate(1.18) !important;
+}
+.quiet-dock-item {
+  appearance: none !important;
+  border: 0 !important;
+  min-width: 0 !important;
+  height: 58px !important;
+  padding: 5px 2px 3px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 2px !important;
+  border-radius: 18px !important;
+  background: transparent !important;
+  color: #6e7d83 !important;
+  box-shadow: none !important;
+  font-size: 10px !important;
+  font-weight: 780 !important;
+  line-height: 1 !important;
+  transition: transform .16s ease, color .16s ease, background .16s ease !important;
+}
+.quiet-dock-item:active { transform: scale(.94) !important; }
+.quiet-dock-item.is-current:not(.quiet-voice-item) {
+  color: #258d6a !important;
+  background: rgba(62,171,128,.09) !important;
+}
+.quiet-dock-symbol {
+  width: 25px !important;
+  height: 25px !important;
+  display: grid !important;
+  place-items: center !important;
+}
+.quiet-dock-svg { width: 24px !important; height: 24px !important; display: block !important; }
+.quiet-dock-label { white-space: nowrap !important; letter-spacing: -.01em !important; }
+.quiet-voice-item {
+  height: 68px !important;
+  width: 68px !important;
+  justify-self: center !important;
+  margin-top: -24px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  color: white !important;
+  background: linear-gradient(180deg,#ffad43,#ff8a21) !important;
+  border: 5px solid rgba(255,255,255,.92) !important;
+  box-shadow: 0 11px 25px rgba(222,126,34,.33), 0 2px 0 rgba(255,255,255,.72) inset !important;
+}
+.quiet-voice-item .quiet-dock-symbol { width: 31px !important; height: 31px !important; }
+.quiet-voice-item .quiet-dock-svg { width: 30px !important; height: 30px !important; stroke-width: 1.9 !important; }
+.quiet-voice-item .quiet-dock-label { display: none !important; }
+.quiet-voice-item.is-listening {
+  background: linear-gradient(180deg,#5ed8ad,#2fb787) !important;
+  box-shadow: 0 0 0 7px rgba(65,196,148,.16), 0 11px 25px rgba(38,154,112,.30) !important;
+  animation: voiceListeningPulse 1.25s ease-in-out infinite !important;
+}
+@keyframes voiceListeningPulse { 50% { transform: scale(1.055); } }
+
+/* Home: friend and sprout are independent inhabitants of the world. */
+body[data-screen="home-scene"] .screen {
+  min-height: calc(100svh - 116px - var(--safe-top)) !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+.quiet-home-scene {
+  position: relative !important;
+  min-height: calc(100svh - 132px - var(--safe-top)) !important;
+  display: grid !important;
+  grid-template-rows: minmax(0,1fr) auto !important;
+  align-items: stretch !important;
+  gap: 10px !important;
+  overflow: visible !important;
+}
+.home-world-stage {
+  position: relative !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  overflow: visible !important;
+}
+.home-world-stage .appearance-stage.home-appearance {
+  position: absolute !important;
+  left: 50% !important;
+  top: 7% !important;
+  transform: translateX(-50%) !important;
+  width: min(78vw, 390px) !important;
+  height: min(78vw, 390px) !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  animation: freeFloat 6.6s ease-in-out infinite !important;
+  transform-origin: 50% 55% !important;
+  z-index: 3 !important;
+}
+.home-world-stage .appearance-stage.home-appearance .light-drop {
+  width: min(58vw, 275px) !important;
+  height: min(58vw, 275px) !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 auto !important;
+  filter: drop-shadow(0 22px 28px rgba(58,120,145,.13)) !important;
+}
+@keyframes freeFloat {
+  0%,100% { transform: translateX(-50%) translateY(0) rotate(-.35deg); }
+  50% { transform: translateX(-50%) translateY(-13px) rotate(.35deg); }
+}
+.friend-ground-shadow {
+  position: absolute !important;
+  left: 50% !important;
+  top: 58% !important;
+  translate: -50% 0 !important;
+  width: 116px !important;
+  height: 25px !important;
+  border-radius: 50% !important;
+  background: radial-gradient(ellipse, rgba(57,104,111,.22), rgba(73,115,118,.08) 48%, transparent 72%) !important;
+  filter: blur(4px) !important;
+  animation: floatingShadow 6.6s ease-in-out infinite !important;
+  z-index: 1 !important;
+}
+@keyframes floatingShadow {
+  0%,100% { transform: scale(.92); opacity: .62; }
+  50% { transform: scale(.76); opacity: .38; }
+}
+.grounded-sprout {
+  position: absolute !important;
+  left: 50% !important;
+  top: 64% !important;
+  translate: -50% 0 !important;
+  width: 92px !important;
+  height: 104px !important;
+  display: block !important;
+  transform-origin: 50% 100% !important;
+  animation: sproutWind 4.8s ease-in-out infinite !important;
+  z-index: 2 !important;
+}
+.grounded-stem {
+  position: absolute !important;
+  left: 44px !important;
+  bottom: 18px !important;
+  width: 8px !important;
+  height: 62px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg,#42ae5c,#72d66f 55%,#30944d) !important;
+  box-shadow: inset 2px 0 3px rgba(255,255,255,.32) !important;
+}
+.grounded-leaf {
+  position: absolute !important;
+  top: 20px !important;
+  width: 42px !important;
+  height: 25px !important;
+  border-radius: 100% 8% 100% 8% !important;
+  background: radial-gradient(circle at 35% 30%,#bff983 0 12%,#79dc58 45%,#36a948 100%) !important;
+  box-shadow: inset 4px 4px 7px rgba(255,255,255,.32), 0 5px 9px rgba(58,123,61,.16) !important;
+}
+.grounded-leaf.leaf-left { left: 8px !important; transform: rotate(-25deg) !important; }
+.grounded-leaf.leaf-right { right: 5px !important; transform: scaleX(-1) rotate(-25deg) !important; }
+.ground-soil {
+  position: absolute !important;
+  left: 50% !important;
+  bottom: 4px !important;
+  translate: -50% 0 !important;
+  width: 92px !important;
+  height: 25px !important;
+  border-radius: 50% !important;
+  background: radial-gradient(ellipse,#8e6b3f 0 24%,#708b49 49%,rgba(95,131,74,.15) 67%,transparent 72%) !important;
+  filter: blur(.2px) !important;
+}
+@keyframes sproutWind { 0%,100% { rotate: -1.4deg; } 50% { rotate: 1.8deg; } }
+
+.quiet-home-scene .home-message.card {
+  position: relative !important;
+  inset: auto !important;
+  width: 100% !important;
+  min-height: 64px !important;
+  margin: 0 0 4px !important;
+  padding: 16px 20px !important;
+  display: grid !important;
+  place-items: center !important;
+  border: 1px solid rgba(255,255,255,.72) !important;
+  background: rgba(255,255,255,.79) !important;
+  box-shadow: 0 13px 30px rgba(50,78,90,.13) !important;
+  font-size: clamp(16px,4.2vw,21px) !important;
+  line-height: 1.4 !important;
+  -webkit-backdrop-filter: blur(15px) !important;
+  backdrop-filter: blur(15px) !important;
+  z-index: 5 !important;
+}
+
+/* Global content layouts now rely on the dock, not individual home buttons. */
+.message-wrap,
+.memory-wrap,
+.guardian-wrap,
+.appearance-wrap,
+.accordion-profile-wrap {
+  min-height: calc(100svh - 126px - var(--safe-top)) !important;
+}
+.message-card-shell,
+.guardian-card,
+.book-page,
+.appearance-book,
+.accordion-profile-book {
+  margin-bottom: 12px !important;
+}
+.guardian-wrap { align-items: start !important; place-items: start center !important; }
+.guardian-card { max-height: none !important; }
+.talk-actions,
+.memory-actions,
+.guardian-back-button,
+#appearanceHome { display: none !important; }
+
+/* Profile portrait must never inherit full Form-stage geometry. */
+.profile-friend-portrait {
+  width: 74px !important;
+  height: 74px !important;
+  min-width: 74px !important;
+  max-width: 74px !important;
+  margin: 0 !important;
+  position: relative !important;
+  overflow: hidden !important;
+  border-radius: 50% !important;
+  display: grid !important;
+  place-items: center !important;
+  transform: none !important;
+  animation: none !important;
+}
+.profile-friend-portrait .light-drop {
+  width: 68px !important;
+  height: 68px !important;
+  margin: 0 !important;
+  transform: none !important;
+  animation: none !important;
+}
+.profile-friend-summary { align-items: center !important; }
+
+@media (max-height: 760px) {
+  :root { --dock-height: 70px; --dock-space: calc(104px + env(safe-area-inset-bottom)); }
+  .quiet-bottom-dock { height: 70px !important; border-radius: 25px !important; }
+  .quiet-dock-item { height: 52px !important; }
+  .quiet-voice-item { width: 62px !important; height: 62px !important; }
+  .home-world-stage .appearance-stage.home-appearance { top: 2% !important; width: min(64vw,290px) !important; height: min(64vw,290px) !important; }
+  .home-world-stage .appearance-stage.home-appearance .light-drop { width: min(47vw,205px) !important; height: min(47vw,205px) !important; }
+  .friend-ground-shadow { top: 54% !important; }
+  .grounded-sprout { top: 59% !important; transform: scale(.85) !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-world-stage .appearance-stage.home-appearance,
+  .friend-ground-shadow,
+  .grounded-sprout,
+  .quiet-voice-item.is-listening { animation: none !important; }
+}
