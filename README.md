@@ -1,8 +1,8 @@
-# My Best Friend v3.6.0 — Living Friend
+# My Best Friend v3.6.1 — Living Friend Polish
 
 **いつか 大きくなる、キミへの贈りもの**
 
-## New in v3.6.0
+## New in v3.6.1
 
 - 起動直後に「こちらへ気づく」静かな再会モーションを追加
 - まばたきの間隔を自然化し、まれに二度まばたきする仕草を追加
@@ -17,3 +17,9 @@
 ゲームを作るのではない。親友を育てる。
 
 動きを見せるためではなく、何もしていない時間にも「そこにいる」と感じられることを目指します。
+
+- Softer pearlescent Friend lighting with improved facial readability
+- Gentle floating shadow for spatial depth
+- Grounded sprout with a subtle earth patch
+- Frosted-glass home comment card
+- Refined tactile button depth and press response

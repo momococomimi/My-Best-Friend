@@ -1,4 +1,4 @@
-# Architecture — v3.6.0
+# Architecture — v3.6.1
 
 ## FriendState
 
