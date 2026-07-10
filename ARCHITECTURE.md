@@ -14,6 +14,6 @@ Friendの状態は引き続き単一のFriendStateを全画面で参照する。
 - Friend Form opens from the Form row inside Profile
 
 
-## v3.7.2
+## v3.7.3
 - Voice is an in-place Home interaction using the Web Speech API when available.
 - Profile rows use a reusable accordion component; Form opens the existing Friend's Form screen.
