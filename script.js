@@ -1138,6 +1138,12 @@ window.MBFHome = (() => {
           <span class="near-meadow"></span>
           <span class="grass-tuft grass-one"></span>
           <span class="grass-tuft grass-two"></span>
+          <span class="world-flower flower-one" aria-hidden="true"></span>
+          <span class="world-flower flower-two" aria-hidden="true"></span>
+          <span class="world-flower flower-three" aria-hidden="true"></span>
+          <span class="world-butterfly" aria-hidden="true"></span>
+          <span class="world-bird bird-one" aria-hidden="true"></span>
+          <span class="world-bird bird-two" aria-hidden="true"></span>
         </div>
         <div class="home-world-stage">
           ${MBFAppearance.renderFriendShape(MBFAppearance.current(data), `home-appearance mood-${mood}`)}

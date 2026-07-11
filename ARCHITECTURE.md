@@ -31,15 +31,20 @@ Friendの状態は引き続き単一のFriendStateを全画面で参照する。
 - Secondary screens expose one minimal back arrow whose destination is always Home.
 - Message uses a fixed shell: header and composer remain visible while only chat history scrolls.
 
-## v4.3.0
+## v4.4.0
 - Product title remains metadata/PWA identity and is not rendered as a permanent screen heading.
 - Message is a friend-presence screen: a single FriendState portrait remains visible while conversation history scrolls independently.
 - Memory begins with the project dedication before chapter content.
 
 
-## v4.3.0
+## v4.4.0
 Home atmosphere is decorative and pointer-events-free. Message keeps a fixed composer while only the conversation log scrolls. Reduced-motion preferences disable ambient animation.
 
 
-## v4.3.0 A Living World
+## v4.4.0 A Living World
 HomeのFriendとSproutは独立した座標・影・アニメーションを持つ。MessageのheaderはFriendのpresenceのみを表示し、名前ラベルに依存しない。
+
+## v4.4.0
+- Home environment is decorative-only and isolated inside `.home-atmosphere`.
+- Message keeps a compact presence header while the scrollable chat log receives most available height.
+- Motion respects `prefers-reduced-motion`.
