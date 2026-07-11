@@ -50,10 +50,17 @@ GitHub Pages確認URL: `https://momococomimi.github.io/my-best-friend/?v=400`
 - Message history scrolls independently while the input composer remains visible.
 - Every non-Home screen uses a minimal left-arrow button to return to Home.
 
-## v4.1.0 Friend Conversation Room
+## v4.2.0 Friend Conversation Room
 - 画面上の恒常的なアプリタイトル表示を廃止
 - Memory冒頭に「いつか 大きくなる、キミへの贈りもの。」を配置
 - Messageをフレンドが常駐する会話空間へ刷新
 - 会話履歴はスクロール、入力欄は固定
 - 考え中・返答時の小さなフレンド反応を追加
 - ProfileのForm表記から「〜の姿」を削除
+
+
+## v4.2.0 Living Home & Conversation Room
+- Homeに静かな光・葉・粒子の環境演出を追加
+- フレンドと芽の浮遊・接地感を調整
+- Messageを利用可能領域いっぱいに拡大
+- 会話履歴のスクロールと入力欄の安定性を改善

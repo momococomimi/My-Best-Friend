@@ -1125,6 +1125,15 @@ window.MBFHome = (() => {
     if (livingGreeting) comments.unshift(livingGreeting);
     MBFUi.set(`
       <section class="home-scene quiet-home-scene">
+        <div class="home-atmosphere" aria-hidden="true">
+          <span class="ambient-glow glow-one"></span>
+          <span class="ambient-glow glow-two"></span>
+          <span class="ambient-mote mote-one">✦</span>
+          <span class="ambient-mote mote-two">·</span>
+          <span class="ambient-mote mote-three">✧</span>
+          <span class="ambient-leaf leaf-one"></span>
+          <span class="ambient-leaf leaf-two"></span>
+        </div>
         <div class="home-world-stage">
           ${MBFAppearance.renderFriendShape(MBFAppearance.current(data), `home-appearance mood-${mood}`)}
           <span class="friend-ground-shadow" aria-hidden="true"></span>

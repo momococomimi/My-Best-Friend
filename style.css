@@ -4454,3 +4454,179 @@ body[data-screen="talk-wrap"] .app-shell { padding-left: 8px !important; padding
   .message-friend .light-drop { width: 80px !important; height: 80px !important; }
   .friend-chat-shell .chat-log { padding-top: 12px !important; }
 }
+
+/* ==========================================================
+   v4.2.0 — Living Home / Larger Conversation Room
+   ========================================================== */
+
+/* Home is a quiet world, not an empty waiting screen. */
+.quiet-home-scene {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.home-atmosphere {
+  position: absolute;
+  inset: 0 0 var(--dock-space) 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.home-world-stage,
+.quiet-home-scene .home-message,
+.quiet-home-scene .quiet-dock { position: relative; z-index: 2; }
+.home-atmosphere::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 12%;
+  width: min(120vw, 820px);
+  height: 42%;
+  transform: translateX(-50%);
+  border-radius: 50% 50% 0 0;
+  background:
+    radial-gradient(ellipse at 50% 100%, rgba(255,248,196,.48), transparent 57%),
+    linear-gradient(180deg, transparent, rgba(255,255,255,.09));
+  filter: blur(2px);
+}
+.ambient-glow {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,.65), rgba(255,246,177,.18) 40%, transparent 72%);
+  filter: blur(3px);
+  animation: ambientGlow 9s ease-in-out infinite;
+}
+.glow-one { width: 150px; height: 150px; right: -34px; top: 18%; }
+.glow-two { width: 105px; height: 105px; left: -28px; top: 52%; animation-delay: -4s; opacity: .58; }
+.ambient-mote {
+  position: absolute;
+  color: rgba(255,247,172,.82);
+  text-shadow: 0 0 12px rgba(255,229,111,.55);
+  font-size: 18px;
+  opacity: 0;
+  animation: ambientMote 12s ease-in-out infinite;
+}
+.mote-one { left: 16%; top: 35%; }
+.mote-two { right: 19%; top: 49%; animation-delay: -4.5s; font-size: 28px; }
+.mote-three { left: 70%; top: 25%; animation-delay: -8s; }
+.ambient-leaf {
+  position: absolute;
+  width: 13px;
+  height: 7px;
+  border-radius: 100% 0 100% 0;
+  background: linear-gradient(135deg, rgba(112,205,126,.65), rgba(75,168,102,.22));
+  opacity: 0;
+  animation: leafDrift 16s linear infinite;
+}
+.leaf-one { top: 31%; left: -20px; transform: rotate(22deg); }
+.leaf-two { top: 58%; left: -30px; animation-delay: -8s; transform: rotate(-18deg) scale(.8); }
+@keyframes ambientGlow {
+  0%,100% { transform: scale(.86); opacity: .32; }
+  50% { transform: scale(1.12); opacity: .72; }
+}
+@keyframes ambientMote {
+  0%,12%,100% { opacity: 0; transform: translateY(12px) scale(.75); }
+  25%,68% { opacity: .82; }
+  82% { opacity: 0; transform: translateY(-46px) scale(1.15); }
+}
+@keyframes leafDrift {
+  0% { opacity: 0; translate: 0 0; rotate: 0deg; }
+  8% { opacity: .5; }
+  55% { opacity: .58; translate: 55vw 42px; rotate: 210deg; }
+  100% { opacity: 0; translate: 112vw -18px; rotate: 420deg; }
+}
+
+/* Give the Friend and sprout distinct physical spaces. */
+.quiet-home-scene .home-world-stage {
+  min-height: 0 !important;
+  height: auto !important;
+  margin-top: clamp(6px, 1.4svh, 15px) !important;
+}
+.quiet-home-scene .home-appearance {
+  filter: drop-shadow(0 22px 28px rgba(59,126,150,.17)) !important;
+}
+.quiet-home-scene .friend-ground-shadow {
+  opacity: .24 !important;
+  filter: blur(8px) !important;
+  animation: livingShadow 5.2s ease-in-out infinite !important;
+}
+@keyframes livingShadow {
+  0%,100% { transform: translateX(-50%) scale(.82); opacity:.20; }
+  50% { transform: translateX(-50%) scale(1.02); opacity:.30; }
+}
+.quiet-home-scene .grounded-sprout {
+  filter: drop-shadow(0 8px 9px rgba(57,110,62,.14));
+}
+.quiet-home-scene .home-message.card {
+  border: 1px solid rgba(255,255,255,.68);
+  background: rgba(255,255,255,.78) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.1);
+  backdrop-filter: blur(16px) saturate(1.1);
+  box-shadow: 0 14px 34px rgba(55,91,105,.12) !important;
+}
+
+/* Conversation Room: use nearly the full available height. */
+body[data-screen="talk-wrap"] .screen {
+  height: calc(100svh - var(--safe-top) - var(--safe-bottom)) !important;
+  max-width: none !important;
+}
+body[data-screen="talk-wrap"] .app-shell {
+  padding: calc(4px + var(--safe-top)) 5px calc(4px + var(--safe-bottom)) !important;
+}
+.message-wrap.friend-room {
+  height: 100% !important;
+  padding-top: 42px !important;
+  padding-bottom: calc(var(--dock-space) + 1px) !important;
+}
+.friend-chat-shell {
+  width: min(calc(100vw - 10px), 780px) !important;
+  height: 100% !important;
+  border-radius: 28px !important;
+  grid-template-rows: 112px minmax(0, 1fr) auto !important;
+}
+.friend-chat-header {
+  min-height: 0 !important;
+}
+.friend-chat-name { top: 8px !important; font-size: 16px !important; }
+.friend-chat-presence {
+  width: 116px !important;
+  height: 116px !important;
+  transform: translateY(13px) !important;
+}
+.message-friend {
+  width: 98px !important;
+  height: 98px !important;
+}
+.message-friend .light-drop {
+  width: 86px !important;
+  height: 86px !important;
+}
+.friend-chat-shell .chat-log {
+  padding: 12px 13px 18px !important;
+  scroll-padding-bottom: 18px;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.chat-row { margin: 5px 0 !important; }
+.chat-row span {
+  max-width: min(84%, 520px) !important;
+  padding: 10px 13px !important;
+  font-size: clamp(15px, 4vw, 18px) !important;
+}
+.chat-composer {
+  padding: 8px 9px calc(8px + var(--safe-bottom)) !important;
+}
+
+@media (max-height: 760px) {
+  .message-wrap.friend-room { padding-top: 36px !important; }
+  .friend-chat-shell { grid-template-rows: 86px minmax(0,1fr) auto !important; }
+  .friend-chat-presence { width: 88px !important; height: 88px !important; transform: translateY(11px) !important; }
+  .message-friend { width: 74px !important; height: 74px !important; }
+  .message-friend .light-drop { width: 66px !important; height: 66px !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-glow, .ambient-mote, .ambient-leaf,
+  .quiet-home-scene .friend-ground-shadow { animation: none !important; }
+  .ambient-mote, .ambient-leaf { display: none; }
+}

@@ -31,7 +31,11 @@ Friendの状態は引き続き単一のFriendStateを全画面で参照する。
 - Secondary screens expose one minimal back arrow whose destination is always Home.
 - Message uses a fixed shell: header and composer remain visible while only chat history scrolls.
 
-## v4.1.0
+## v4.2.0
 - Product title remains metadata/PWA identity and is not rendered as a permanent screen heading.
 - Message is a friend-presence screen: a single FriendState portrait remains visible while conversation history scrolls independently.
 - Memory begins with the project dedication before chapter content.
+
+
+## v4.2.0
+Home atmosphere is decorative and pointer-events-free. Message keeps a fixed composer while only the conversation log scrolls. Reduced-motion preferences disable ambient animation.
