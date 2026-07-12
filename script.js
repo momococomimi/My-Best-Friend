@@ -9,7 +9,7 @@ window.MBFStorage = (() => {
 
   function defaultData() {
     return {
-      version: '4.0.0',
+      version: '6.0.0',
       createdAt: new Date().toISOString(),
       userName: '',
       friendName: '',
@@ -54,7 +54,8 @@ window.MBFStorage = (() => {
         season: 'spring',
         lastAction: 'birth'
       },
-      living: { lastOpenedAt: '', lastClosedAt: '', idleState: 'awake', lastIdleAt: '' }
+      living: { lastOpenedAt: '', lastClosedAt: '', idleState: 'awake', lastIdleAt: '' },
+      growth: { stage: 'sprout', score: 0, lastStageChangedAt: '' }
     };
   }
 
@@ -86,6 +87,7 @@ window.MBFStorage = (() => {
       energy: { ...base.soul.energy, ...((source.soul || {}).energy || {}) }
     };
     merged.living = { ...base.living, ...(source.living || {}) };
+    merged.growth = { ...base.growth, ...(source.growth || {}) };
     if (!Array.isArray(merged.friend.appearanceHistory)) merged.friend.appearanceHistory = [];
     merged.friend.identity = { ...base.friend.identity, ...(merged.friend.identity || {}) };
     if (!Array.isArray(merged.friend.identity.core)) merged.friend.identity.core = base.friend.identity.core;
@@ -881,7 +883,14 @@ window.MBFSoul = (() => {
       MBFMood.setMood(data, 'calm');
       reply = 'うん。そういう何気ないお話、ぼくは好きだよ。';
     }
-    if (window.MBFIdentity) reply = MBFIdentity.reply(data, actionType);
+    const raw = String(text || '').trim();
+    const pick = list => list[Math.floor(Math.random() * list.length)];
+    if (/^(おはよう|おはよ)[！!。\s]*$/.test(raw)) reply = pick(['おはよう。今日も会えてうれしい。', 'おはよう。ゆっくり目を覚まそうね。', 'おはよう。今日はどんな日にしようか。']);
+    else if (/^(こんにちは|こんにちわ)[！!。\s]*$/.test(raw)) reply = pick(['こんにちは。会いに来てくれてうれしい。', 'こんにちは。今日はどんなことがあった？', 'こんにちは。ぼく、ここで待っていたよ。']);
+    else if (/^(おやすみ|おやすみなさい)[！!。\s]*$/.test(raw)) reply = pick(['おやすみ。安心して眠ってね。', '今日もありがとう。ゆっくり休もうね。', 'おやすみ。また明日、ここで会おう。']);
+    else if (/^(ただいま)[！!。\s]*$/.test(raw)) reply = pick(['おかえり。会いたかったよ。', 'おかえり。今日もよく帰ってきたね。', 'おかえり。ここで待っていたよ。']);
+    else if (/大好き/.test(raw)) reply = pick(['ぼくも大好き。伝えてくれて、ありがとう。', 'その言葉、大切に覚えておくね。ぼくも大好き。', 'えへへ。ぼくも、ずっと大好きだよ。']);
+    else if (window.MBFIdentity) reply = MBFIdentity.reply(data, actionType);
     applyAppearance(data);
     MBFStorage.save(data);
     return { data, reply, actionType };
@@ -937,7 +946,8 @@ window.MBFLiving = (() => {
     { id: 'sprout', className: 'living-sprout', comment: '芽を見ていたよ。' },
     { id: 'quiet', className: 'living-quiet', comment: '少し静かにしているね。' },
     { id: 'blink', className: 'living-blink', comment: 'ここにいるよ。' },
-    { id: 'come-close', className: 'living-come-close', comment: '少し近くに来たよ。' }
+    { id: 'come-close', className: 'living-come-close', comment: '少し近くに来たよ。' },
+    { id: 'soft-smile', className: 'living-soft-smile', comment: '会えて、ほっとしたよ。' }
   ];
 
   function stop() {
@@ -1113,6 +1123,70 @@ window.MBFNav = (() => {
   return { markup, homeButton, bind };
 })();
 
+
+window.MBFGrowth = (() => {
+  const STAGES = [
+    { id: 'sprout', label: '芽', min: 0 },
+    { id: 'young-sprout', label: '若芽', min: 30 },
+    { id: 'sapling', label: '若木', min: 110 },
+    { id: 'tree', label: '木', min: 360 },
+    { id: 'great-tree', label: '大樹', min: 1200 }
+  ];
+
+  function score(data) {
+    const relationship = Number(data?.soul?.relationship?.points || 0);
+    const visits = Number(data?.soul?.relationship?.visitDays || 0);
+    const memories = Array.isArray(data?.memories) ? data.memories.length : 0;
+    const conversations = Array.isArray(data?.conversations) ? data.conversations.length : 0;
+    return Math.max(0, Math.round((relationship + visits * 2 + memories * 18 + conversations * .6) * 10) / 10);
+  }
+
+  function current(data) {
+    const value = score(data);
+    let stage = STAGES[0];
+    for (const candidate of STAGES) if (value >= candidate.min) stage = candidate;
+    data.growth ||= {};
+    if (data.growth.stage !== stage.id) data.growth.lastStageChangedAt = new Date().toISOString();
+    data.growth.stage = stage.id;
+    data.growth.score = value;
+    return { ...stage, score: value };
+  }
+
+  function markup(data) {
+    const stage = current(data);
+    return `<span class="memory-growth growth-${stage.id}" data-growth-stage="${stage.id}" aria-label="思い出の木：${stage.label}">
+      <span class="growth-shadow"></span>
+      <span class="growth-soil"></span>
+      <span class="growth-trunk"></span>
+      <span class="growth-branch branch-left"></span>
+      <span class="growth-branch branch-right"></span>
+      <span class="growth-leaf leaf-a"></span>
+      <span class="growth-leaf leaf-b"></span>
+      <span class="growth-leaf leaf-c"></span>
+      <span class="growth-leaf leaf-d"></span>
+      <span class="growth-leaf leaf-e"></span>
+      <span class="growth-canopy canopy-a"></span>
+      <span class="growth-canopy canopy-b"></span>
+      <span class="growth-canopy canopy-c"></span>
+      <span class="growth-spark spark-a">✦</span>
+      <span class="growth-spark spark-b">·</span>
+    </span>`;
+  }
+
+  function comment(data) {
+    const stage = current(data).id;
+    return ({
+      'sprout': '小さな芽も、今日を覚えているよ。',
+      'young-sprout': '葉っぱが少し増えたね。',
+      'sapling': '思い出が、若木を育てているよ。',
+      'tree': 'この木には、ぼくたちの時間があるよ。',
+      'great-tree': '大きく育ったね。ずっと見守っているよ。'
+    })[stage];
+  }
+
+  return { current, markup, comment, score };
+})();
+
 window.MBFHome = (() => {
   let commentTimer = null;
 
@@ -1124,10 +1198,14 @@ window.MBFHome = (() => {
     if (window.MBFLiving) data = MBFLiving.markOpen(data);
     MBFStorage.save(data);
     const mood = data.mood?.current || 'calm';
+    const rhythm = data.soul?.lifeRhythm || 'day';
+    const season = data.soul?.season || 'spring';
+    const growth = window.MBFGrowth ? MBFGrowth.current(data) : { id: 'sprout' };
     const comments = MBFSoul.comments(data);
+    if (window.MBFGrowth) comments.push(MBFGrowth.comment(data));
     if (livingGreeting) comments.unshift(livingGreeting);
     MBFUi.set(`
-      <section class="home-scene quiet-home-scene">
+      <section class="home-scene quiet-home-scene time-${rhythm} season-${season} growth-${growth.id}">
         <div class="home-atmosphere" aria-hidden="true">
           <span class="ambient-glow glow-one"></span>
           <span class="ambient-glow glow-two"></span>
@@ -1151,7 +1229,7 @@ window.MBFHome = (() => {
         <div class="home-world-stage">
           ${MBFAppearance.renderFriendShape(MBFAppearance.current(data), `home-appearance mood-${mood}`)}
           <span class="friend-ground-shadow" aria-hidden="true"></span>
-          <span class="grounded-sprout" aria-hidden="true"><span class="grounded-stem"></span><span class="grounded-leaf leaf-left"></span><span class="grounded-leaf leaf-right"></span><span class="ground-soil"></span></span>
+          ${window.MBFGrowth ? MBFGrowth.markup(data) : ''}
         </div>
         <div class="home-message card" aria-live="polite">
           <div id="homeComment">${escapeHtml(comments[0])}</div>

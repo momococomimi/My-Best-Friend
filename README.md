@@ -106,3 +106,11 @@ GitHub Pages確認URL: `https://momococomimi.github.io/my-best-friend/?v=400`
 - Speech recognition interim and final transcripts appear on the user side first.
 - The temporary user-side draft is replaced by the finalized transcript.
 - Only the Friend's generated response appears on the Friend side.
+
+
+## v6.0.0 Living Friend
+- 時間帯に応じた空と光の変化
+- 自然なまばたき・視線・静かな笑顔の待機モーション
+- Relationship・訪問日数・Memory・会話から育つ Memory Tree
+- 芽 → 若芽 → 若木 → 木 → 大樹の5段階
+- あいさつや「ただいま」「大好き」への返事を自然に多様化
