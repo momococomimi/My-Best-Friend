@@ -5265,3 +5265,12 @@ body[data-screen="talk-wrap"] .app-shell {
 @media (prefers-reduced-motion: reduce) {
   .voice-response-toast { transition: none; }
 }
+
+
+/* v5.2.1 — voice transcript ownership fix */
+.chat-row.user.voice-draft span {
+  opacity: .72;
+  font-style: italic;
+  outline: 2px solid rgba(90, 198, 226, .18);
+  outline-offset: 2px;
+}

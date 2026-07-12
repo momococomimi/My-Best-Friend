@@ -100,3 +100,9 @@ GitHub Pages確認URL: `https://momococomimi.github.io/my-best-friend/?v=400`
 - Profile / Memoryでは画面を維持したまま返事を表示
 - 返事を音声読み上げ
 - マイクは他アイコンと同じ高さに揃えつつ、オレンジの円形で強調
+
+
+## v5.2.1 — Voice transcript ownership
+- Speech recognition interim and final transcripts appear on the user side first.
+- The temporary user-side draft is replaced by the finalized transcript.
+- Only the Friend's generated response appears on the Friend side.

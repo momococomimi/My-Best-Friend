@@ -1318,7 +1318,11 @@ window.MBFVoice = (() => {
     recognition.maxAlternatives = 1;
     recognition.onstart = () => {
       setButtonState(true);
-      showOnCurrentScreen('うん。聞いているよ。', 'is-listening');
+      if (currentScreen() === 'talk-wrap' && window.MBFMessage?.beginVoiceInput) {
+        window.MBFMessage.beginVoiceInput();
+      } else {
+        showOnCurrentScreen('うん。聞いているよ。', 'is-listening');
+      }
       document.querySelector('.message-friend, .home-appearance')?.classList.add('is-listening');
       if ('vibrate' in navigator) navigator.vibrate(25);
     };
@@ -1330,7 +1334,13 @@ window.MBFVoice = (() => {
         if (event.results[i].isFinal) finalText += t;
         else interim += t;
       }
-      if (interim) showOnCurrentScreen(interim, 'is-listening');
+      if (interim) {
+        if (currentScreen() === 'talk-wrap' && window.MBFMessage?.updateVoiceTranscript) {
+          window.MBFMessage.updateVoiceTranscript(interim);
+        } else {
+          showOnCurrentScreen(interim, 'is-listening');
+        }
+      }
       if (finalText) {
         const reply = friendlyReply(finalText);
         saveVoiceExchange(finalText, reply);
@@ -1348,11 +1358,17 @@ window.MBFVoice = (() => {
         : event.error === 'no-speech'
           ? '声が聞こえなかったよ。もう一度、聞かせてね。'
           : 'うまく聞き取れなかったよ。もう一度試してみよう。';
+      if (currentScreen() === 'talk-wrap' && window.MBFMessage?.cancelVoiceInput) {
+        window.MBFMessage.cancelVoiceInput();
+      }
       showOnCurrentScreen(message);
       document.querySelector('.message-friend, .home-appearance')?.classList.remove('is-listening');
       setButtonState(false);
     };
     recognition.onend = () => {
+      if (currentScreen() === 'talk-wrap' && window.MBFMessage?.finishVoiceInput) {
+        window.MBFMessage.finishVoiceInput();
+      }
       document.querySelector('.message-friend, .home-appearance')?.classList.remove('is-listening');
       setButtonState(false);
     };
@@ -1424,12 +1440,31 @@ window.MBFMessage = (() => {
     log.scrollTop = log.scrollHeight;
     return row;
   }
+  function beginVoiceInput() {
+    cancelVoiceInput();
+  }
+  function updateVoiceTranscript(text) {
+    let row = document.querySelector('.chat-row.user.voice-draft');
+    if (!row) row = appendBubble('user', text, 'voice-draft is-listening');
+    else row.querySelector('span').textContent = text;
+    scrollToLatest();
+  }
+  function cancelVoiceInput() {
+    document.querySelector('.chat-row.user.voice-draft')?.remove();
+  }
+  function finishVoiceInput() {
+    cancelVoiceInput();
+  }
   function showVoiceStatus(text, state = '') {
-    const existing = document.querySelector('.chat-row.friend.voice-status');
-    if (existing) existing.remove();
+    if (state === 'is-listening') {
+      updateVoiceTranscript(text);
+      return;
+    }
+    cancelVoiceInput();
     appendBubble('friend', text, `voice-status ${state}`.trim());
   }
   function appendVoiceExchange(transcript, reply) {
+    cancelVoiceInput();
     document.querySelector('.chat-row.friend.voice-status')?.remove();
     appendBubble('user', transcript, 'chat-enter voice-entry');
     const friend = document.querySelector('.message-friend');
@@ -1474,7 +1509,7 @@ window.MBFMessage = (() => {
       input.focus({ preventScroll: true });
     }, 650);
   }
-  return { render, showVoiceStatus, appendVoiceExchange };
+  return { render, beginVoiceInput, updateVoiceTranscript, cancelVoiceInput, finishVoiceInput, showVoiceStatus, appendVoiceExchange };
 })();
 
 window.MBFProfile = (() => {
