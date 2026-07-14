@@ -5406,3 +5406,86 @@ body[data-screen="talk-wrap"] .app-shell {
     transform: none !important;
   }
 }
+
+
+/* ==========================================================
+   v5.4.1 — Center Lock / Alive, stability patch
+   Keep the Friend centered through every idle and emotion state.
+   ========================================================== */
+
+/* The positioning wrapper always owns centering.  Do not use the
+   individual `translate` property here: Safari can combine it with
+   older transforms differently while classes are changing. */
+.quiet-home-scene .home-world-stage .appearance-stage.home-appearance,
+.quiet-home-scene .home-appearance.living-breathe {
+  left: 50% !important;
+  translate: none !important;
+  transform-origin: 50% 58% !important;
+  animation: v541FriendCenterFloat 7.4s ease-in-out infinite !important;
+}
+@keyframes v541FriendCenterFloat {
+  0%, 100% { transform: translate3d(-50%, -7px, 0) rotate(-.28deg); }
+  48%      { transform: translate3d(-50%, -15px, 0) rotate(.30deg); }
+  72%      { transform: translate3d(-50%, -11px, 0) rotate(0deg); }
+}
+
+/* Emotion reactions retain the exact same horizontal anchor. */
+.quiet-home-scene .home-appearance.living-soft-smile {
+  animation: v541HappyCenter 2.3s ease-in-out both !important;
+}
+@keyframes v541HappyCenter {
+  0%, 100% { transform: translate3d(-50%, -7px, 0) rotate(0) scale(1); }
+  42%      { transform: translate3d(-50%, -16px, 0) rotate(-.35deg) scale(1.012); }
+  68%      { transform: translate3d(-50%, -11px, 0) rotate(.25deg) scale(1.006); }
+}
+
+/* Touch feedback also preserves centering instead of replacing it. */
+.quiet-home-scene .home-appearance:active {
+  transform: translate3d(-50%, -7px, 0) scale(.985) !important;
+}
+
+/* Let the eyes briefly acknowledge the voice card without moving the
+   whole character or changing its reserved layout box. */
+.quiet-home-scene .home-appearance.living-speaking .drop-eye {
+  animation: v541ListenToWords 1.35s ease-in-out 1;
+  transform-origin: 50% 55%;
+}
+@keyframes v541ListenToWords {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  38%, 68% { transform: translateY(2px) scaleY(.96); }
+}
+
+/* The rooted sprout stays subtle and independent. */
+.quiet-home-scene .grounded-sprout {
+  translate: none !important;
+  animation: v541SproutSway 6.4s ease-in-out infinite !important;
+}
+@keyframes v541SproutSway {
+  0%, 100% { transform: rotate(-1deg); }
+  50%      { transform: rotate(1.35deg); }
+}
+
+@media (max-height: 760px) {
+  @keyframes v541FriendCenterFloat {
+    0%, 100% { transform: translate3d(-50%, -4px, 0) rotate(-.2deg); }
+    50%      { transform: translate3d(-50%, -9px, 0) rotate(.2deg); }
+  }
+  @keyframes v541HappyCenter {
+    0%, 100% { transform: translate3d(-50%, -4px, 0) scale(1); }
+    50%      { transform: translate3d(-50%, -9px, 0) scale(1.006); }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quiet-home-scene .home-world-stage .appearance-stage.home-appearance,
+  .quiet-home-scene .home-appearance.living-breathe,
+  .quiet-home-scene .home-appearance.living-soft-smile {
+    animation: none !important;
+    translate: none !important;
+    transform: translate3d(-50%, -7px, 0) !important;
+  }
+  .quiet-home-scene .home-appearance.living-speaking .drop-eye,
+  .quiet-home-scene .grounded-sprout {
+    animation: none !important;
+  }
+}

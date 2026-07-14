@@ -1,4 +1,4 @@
-# My Best Friend v5.4.0
+# My Best Friend v5.4.1
 
 ## v5.4.0 Living Expressions
 
@@ -123,3 +123,12 @@ GitHub Pages確認URL: `https://momococomimi.github.io/my-best-friend/?v=400`
 - 雲・光・葉の速度と透明度を落ち着いた強さに調整
 - ホームコメントの切り替えを柔らかなフェードへ改善
 - 「視差効果を減らす」設定では追加モーションを停止
+
+
+## v5.4.1 Center Lock
+
+- Homeのフレンドを全状態で画面中央に固定
+- 表情変化・タップ反応中の右寄りを修正
+- 浮遊、うれしい反応、視線の動きを中央基準で再調整
+- 🌱の揺れを独立した小さな動きに調整
+- レイアウト、音声、Message、Profile、Memory、Guardianは変更なし
