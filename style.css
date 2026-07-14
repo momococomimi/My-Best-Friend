@@ -5340,3 +5340,69 @@ body[data-screen="talk-wrap"] .app-shell {
     transform: none !important;
   }
 }
+
+/* ==========================================================
+   v5.4.0 — Living expressions, stability-first
+   No reserved sizes or layout positions are changed.
+   ========================================================== */
+
+/* A tiny speaking motion: the Friend responds, not the card. */
+.quiet-home-scene .home-appearance.living-speaking .drop-mouth {
+  animation: v540MouthSpeak .42s ease-in-out 4;
+  transform-origin: 50% 30%;
+}
+.quiet-home-scene .home-appearance.living-speaking .drop-cheek {
+  animation: v540CheekWarm 1.65s ease-in-out both;
+}
+@keyframes v540MouthSpeak {
+  0%, 100% { transform: scaleX(1) scaleY(1); }
+  50% { transform: scaleX(.88) scaleY(.58) translateY(1px); }
+}
+@keyframes v540CheekWarm {
+  0%, 100% { opacity: .78; }
+  45% { opacity: 1; transform: scaleX(1.06); }
+}
+
+/* Warm comments produce a small, restrained happy reaction. */
+.quiet-home-scene .home-appearance.living-soft-smile {
+  animation: v540HappyHover 2.3s ease-in-out both !important;
+}
+.quiet-home-scene .home-appearance.living-soft-smile .drop-mouth {
+  transform: scaleX(1.08) scaleY(1.05);
+}
+.quiet-home-scene .home-appearance.living-soft-smile .drop-cheek {
+  opacity: 1;
+  filter: saturate(1.12);
+}
+@keyframes v540HappyHover {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0); }
+  42% { transform: translate3d(0, -8px, 0) rotate(-.45deg) scale(1.012); }
+  68% { transform: translate3d(0, -4px, 0) rotate(.35deg) scale(1.006); }
+}
+
+/* Quiet or sleepy words soften the eyes for a moment. */
+.quiet-home-scene .home-appearance.living-sleepy .drop-eye {
+  animation: v540SleepyEyes 2.5s ease-in-out both;
+}
+@keyframes v540SleepyEyes {
+  0%, 100% { transform: scaleY(1); }
+  28%, 72% { transform: scaleY(.34) translateY(7px); }
+}
+
+/* Keep the same behavior in compact screens without extra displacement. */
+@media (max-height: 760px) {
+  @keyframes v540HappyHover {
+    0%, 100% { transform: translate3d(0, 0, 0) rotate(0); }
+    50% { transform: translate3d(0, -5px, 0) rotate(.25deg) scale(1.006); }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quiet-home-scene .home-appearance.living-speaking .drop-mouth,
+  .quiet-home-scene .home-appearance.living-speaking .drop-cheek,
+  .quiet-home-scene .home-appearance.living-soft-smile,
+  .quiet-home-scene .home-appearance.living-sleepy .drop-eye {
+    animation: none !important;
+    transform: none !important;
+  }
+}

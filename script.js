@@ -1190,8 +1190,10 @@ window.MBFHome = (() => {
     commentTimer = setInterval(() => {
       index = (index + 1) % comments.length;
       setHomeComment(comments[index]);
-    }, 8000);
+    }, 11000);
   }
+
+  let voiceMotionTimer = null;
 
   function setHomeComment(text) {
     const el = document.getElementById('homeComment');
@@ -1200,6 +1202,22 @@ window.MBFHome = (() => {
     void el.offsetWidth;
     el.textContent = text;
     el.classList.add('comment-fade');
+
+    // v5.4.0: let the visible Friend react to its own words.
+    // This only adds a temporary class; no layout dimensions are changed.
+    const friend = document.querySelector('.quiet-home-scene .home-appearance');
+    if (friend) {
+      window.clearTimeout(voiceMotionTimer);
+      friend.classList.remove('living-speaking', 'living-soft-smile', 'living-sleepy');
+      void friend.offsetWidth;
+      const value = String(text || '');
+      if (/うれしい|ありがとう|会えて|えへへ|大好き/.test(value)) friend.classList.add('living-soft-smile');
+      else if (/眠|休|おやすみ|静か/.test(value)) friend.classList.add('living-sleepy');
+      else friend.classList.add('living-speaking');
+      voiceMotionTimer = window.setTimeout(() => {
+        friend.classList.remove('living-speaking', 'living-soft-smile', 'living-sleepy');
+      }, 2600);
+    }
   }
 
   function escapeHtml(str) { return String(str || '').replace(/[&<>']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;'}[c])); }
