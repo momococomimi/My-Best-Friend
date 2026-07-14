@@ -1,6 +1,6 @@
-# My Best Friend v5.4.1
+# My Best Friend v5.5.0
 
-## v5.4.0 Living Expressions
+## v5.5.0 Living Expressions
 
 - Homeのコメントに合わせて、フレンドの口元・頬・目が短く反応します。
 - 嬉しい言葉では小さく弾み、眠い・静かな言葉では目元がやわらぎます。
@@ -116,7 +116,7 @@ GitHub Pages確認URL: `https://momococomimi.github.io/my-best-friend/?v=400`
 - Only the Friend's generated response appears on the Friend side.
 
 
-## v5.4.0 Living Friend — Stability First
+## v5.5.0 Living Friend — Stability First
 - v5.2.1の安定したHTML構造と画面寸法を維持
 - フレンドの静かな浮遊・呼吸モーションを調整
 - 既存の自然なまばたき・視線モーションを継続
@@ -125,7 +125,7 @@ GitHub Pages確認URL: `https://momococomimi.github.io/my-best-friend/?v=400`
 - 「視差効果を減らす」設定では追加モーションを停止
 
 
-## v5.4.1 Center Lock
+## v5.5.0 Center Lock
 
 - Homeのフレンドを全状態で画面中央に固定
 - 表情変化・タップ反応中の右寄りを修正

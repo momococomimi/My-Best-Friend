@@ -967,6 +967,20 @@ window.MBFLiving = (() => {
     return '';
   }
 
+  function timeComment() {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 10) {
+      return ['おはよう。今日もゆっくり始めよう。', '朝の光って、やさしいね。'];
+    }
+    if (hour >= 10 && hour < 17) {
+      return ['今日の空も、きれいだね。', 'いま、キミに会えてうれしい。'];
+    }
+    if (hour >= 17 && hour < 20) {
+      return ['夕方の空って、少し落ち着くね。', '今日も一日、おつかれさま。'];
+    }
+    return ['夜は、ゆっくり話そうね。', 'ねむくなったら、ゆっくり休もうね。'];
+  }
+
   function markOpen(data) {
     data.living ||= {};
     data.living.lastOpenedAt = new Date().toISOString();
@@ -1027,7 +1041,7 @@ window.MBFLiving = (() => {
 
     const scheduleGlance = () => {
       glanceTimer = setTimeout(() => {
-        const glances = ['living-glance-left', 'living-glance-right', 'living-look-sky', 'living-sprout'];
+        const glances = ['living-glance-left', 'living-glance-right', 'living-look-sky', 'living-sprout', 'living-soft-squint'];
         const glance = glances[Math.floor(Math.random() * glances.length)];
         stage.classList.add(glance);
         setTimeout(() => stage.classList.remove(glance), glance === 'living-sprout' ? 2800 : 2200);
@@ -1050,7 +1064,7 @@ window.MBFLiving = (() => {
     document.addEventListener('visibilitychange', () => { if (document.hidden && currentData) markClose(currentData); });
   }
 
-  return { start, stop, greeting, markOpen, markClose };
+  return { start, stop, greeting, timeComment, markOpen, markClose };
 })();
 
 window.MBFNav = (() => {
@@ -1125,6 +1139,11 @@ window.MBFHome = (() => {
     MBFStorage.save(data);
     const mood = data.mood?.current || 'calm';
     const comments = MBFSoul.comments(data);
+    if (window.MBFLiving?.timeComment) {
+      const timeLines = MBFLiving.timeComment();
+      const timeLine = timeLines[Math.floor(Math.random() * timeLines.length)];
+      if (timeLine && !comments.includes(timeLine)) comments.splice(1, 0, timeLine);
+    }
     if (livingGreeting) comments.unshift(livingGreeting);
     MBFUi.set(`
       <section class="home-scene quiet-home-scene">

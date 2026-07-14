@@ -5489,3 +5489,48 @@ body[data-screen="talk-wrap"] .app-shell {
     animation: none !important;
   }
 }
+
+
+/* ==========================================================
+   v5.5.0 — Alive Details / stability-first
+   Expression-only additions. No reserved layout sizes change.
+   ========================================================== */
+
+/* A rare, relaxed half-blink used by the idle engine. */
+.quiet-home-scene .light-drop.living-soft-squint .drop-eye {
+  transform: translateY(2px) scaleY(.68);
+  transition: transform .42s ease;
+}
+
+/* When the Friend speaks, the eyes briefly acknowledge the voice card. */
+.quiet-home-scene .home-appearance.living-speaking .drop-eye,
+.quiet-home-scene .home-appearance.living-soft-smile .drop-eye {
+  transition: transform .38s ease;
+}
+
+/* Keep emotion transitions soft instead of snapping between states. */
+.quiet-home-scene .home-appearance .drop-eye,
+.quiet-home-scene .home-appearance .drop-mouth,
+.quiet-home-scene .home-appearance .drop-cheek {
+  transition: transform .34s ease, opacity .34s ease, filter .34s ease;
+}
+
+/* Night remains calmer without moving the Friend's layout box. */
+body[data-rhythm="night"] .quiet-home-scene .home-appearance {
+  filter: saturate(.96) brightness(.98);
+}
+body[data-rhythm="morning"] .quiet-home-scene .home-appearance {
+  filter: saturate(1.02) brightness(1.01);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quiet-home-scene .light-drop.living-soft-squint .drop-eye {
+    transform: none !important;
+    transition: none !important;
+  }
+  .quiet-home-scene .home-appearance .drop-eye,
+  .quiet-home-scene .home-appearance .drop-mouth,
+  .quiet-home-scene .home-appearance .drop-cheek {
+    transition: none !important;
+  }
+}
