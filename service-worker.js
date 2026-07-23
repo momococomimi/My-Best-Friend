@@ -1,10 +1,10 @@
-const CACHE_NAME = 'my-best-friend-v5.5.1';
+const CACHE_NAME = 'my-best-friend-v5.5.2';
 const ASSETS = [
   './',
   './index.html',
-  './style.css?v=5.5.1',
-  './script.js?v=5.5.1',
-  './manifest.json?v=5.5.1'
+  './style.css?v=5.5.2',
+  './script.js?v=5.5.2',
+  './manifest.json?v=5.5.2'
 ];
 
 self.addEventListener('install', event => {

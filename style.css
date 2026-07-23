@@ -5578,3 +5578,48 @@ body[data-rhythm="morning"] .quiet-home-scene .home-appearance {
     padding: 9px 12px !important;
   }
 }
+
+/* ==========================================================
+   v5.5.2 — Home voice card readability
+   Give the Friend's voice a little more horizontal room while
+   preserving the established world, sprout and dock layout.
+   ========================================================== */
+.quiet-home-scene .home-appearance {
+  top: 1.2% !important;
+}
+
+.quiet-home-scene .home-message.card {
+  width: min(94vw, 680px) !important;
+  max-width: min(94vw, 680px) !important;
+  min-height: 76px !important;
+  padding: 15px 22px !important;
+}
+
+.quiet-home-scene #homeComment {
+  font-size: clamp(18px, 4.35vw, 25px) !important;
+  line-height: 1.38 !important;
+  letter-spacing: .005em !important;
+  text-wrap: balance;
+  word-break: keep-all;
+  line-break: strict;
+}
+
+@media (max-width: 430px) {
+  .quiet-home-scene .home-message.card {
+    width: calc(100% - 2px) !important;
+    max-width: calc(100% - 2px) !important;
+    min-height: 72px !important;
+    padding: 14px 18px !important;
+  }
+}
+
+@media (max-height: 760px) {
+  .quiet-home-scene .home-message.card {
+    min-height: 62px !important;
+    padding: 10px 16px !important;
+  }
+  .quiet-home-scene #homeComment {
+    font-size: clamp(16px, 4vw, 21px) !important;
+    line-height: 1.34 !important;
+  }
+}

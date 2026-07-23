@@ -1,4 +1,4 @@
-# My Best Friend v5.5.1
+# My Best Friend v5.5.2
 
 ## v5.5.0 Living Expressions
 
@@ -132,6 +132,14 @@ GitHub Pages確認URL: `https://momococomimi.github.io/my-best-friend/?v=400`
 - 浮遊、うれしい反応、視線の動きを中央基準で再調整
 - 🌱の揺れを独立した小さな動きに調整
 - レイアウト、音声、Message、Profile、Memory、Guardianは変更なし
+
+
+## v5.5.2 Home Voice Card Readability
+
+- Homeのコメントカードを少し横に広げ、長めのひと言が1行に収まりやすいよう調整
+- 文字サイズと行間をわずかに抑え、短い言葉は軽く、長い言葉は最大2行で読みやすく表示
+- フレンドを約10px上へ移動し、コメントカードとの余白を改善
+- 芽と下部ナビゲーションの位置は変更なし
 
 
 ## v5.5.1 Compact Voice Bubble
